@@ -1,10 +1,12 @@
 
-import { Button, Form, message } from 'antd'
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import {  Form, message } from 'antd'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { CreateUser } from '../API/users'
+import Button from '../components/Button'
 
 const Register = () => {
+   const navigate = useNavigate()
    const [form, setForm] = useState({
       username: '',
       email: '', 
@@ -18,7 +20,8 @@ const Register = () => {
          const response = await CreateUser(form)
          if(response.success){
             message.success(response.message)
-            console.log(form);
+            navigate('/login')
+            // console.log(form);
          }else{
             throw new Error (response.message)
          }
@@ -31,6 +34,14 @@ const Register = () => {
       const { name, value } = e.target
       setForm({...form, [name]: value })
     }
+
+    
+    useEffect(() => {
+      const isSignedIn = JSON.parse(localStorage.getItem("user"))
+      if(isSignedIn){
+        navigate("/")
+      }
+    }, )
   return (
     <div className='flex h-lvh justify-center items-center'>
       <form 
@@ -61,7 +72,11 @@ const Register = () => {
             onChange={handleChange}
          />
 
-         <button className='bg-black w-3/6 mt-4 text-white p-2 rounded-md hover:bg-[#0f515a]'> submit</button>
+        <Button
+            label="Register"
+            bgColor="bg-black"
+            txtColor="text-white"
+        />
 
          <div>
             <p className='text-sm mt-6 '>Already hava an account? <Link to='/login' className='font-bold'> sign in</Link> </p>
