@@ -26,6 +26,8 @@ const Navbar = () => {
                        navigate("/login")
                     }} />
                 </div>}
+
+                
             
         </nav>
     )

@@ -86,8 +86,8 @@ const Login = () => {
          
         <Button
             label="Login"
-            bgColor="bg-black"
-            txtColor="text-white"
+
+            addedStyles="bg-black text-white mt-4"
         />
 
          <div>

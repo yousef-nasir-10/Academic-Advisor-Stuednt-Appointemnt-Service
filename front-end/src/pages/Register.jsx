@@ -74,8 +74,7 @@ const Register = () => {
 
         <Button
             label="Register"
-            bgColor="bg-black"
-            txtColor="text-white"
+            addedStyles="bg-black text-white mt-4"
         />
 
          <div>
