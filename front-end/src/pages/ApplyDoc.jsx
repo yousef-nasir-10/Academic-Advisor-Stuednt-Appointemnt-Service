@@ -203,22 +203,7 @@ const ApplyDoc = () => {
                                 id={day.shortcut}
                                 type="checkbox"
                                 value={day.title}
-                                onChange={(e)=> {
-                                    
-                                    
 
-                                    if (e.target.checked) {
-                                        console.log(daysChecked);
-                                        setDays([...daysChecked, e.target.value])
-                                        
-                                    } else {
-                                        console.log(daysChecked);
-                                        setDays(daysChecked.filter(item => item !== e.target.value))
-                                        
-                                    }
-
-                                    
-                                }}
                                 className="checkbox"
 
 

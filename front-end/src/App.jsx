@@ -28,13 +28,10 @@ function App() {
           <Route
             path="/profile"
             element={<ProtectedRoute> <Profile /> </ProtectedRoute>}
-<<<<<<< HEAD
           />
           <Route
             path="/ApplayDoc"
             element={<ProtectedRoute> <ApplyDoc /> </ProtectedRoute>}
-=======
->>>>>>> 15cc5dff861052e9ec2020a911d56b2b7aca9adc
           />
           <Route path="/apply-doctor" element={<ProtectedRoute> <DoctorForm /> </ProtectedRoute>} />
 
