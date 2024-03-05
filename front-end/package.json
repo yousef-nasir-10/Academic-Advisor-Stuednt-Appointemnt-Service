@@ -10,7 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.0",
+    "@headlessui/react": "^1.7.18",
+    "@mui/material": "^5.15.11",
     "@reduxjs/toolkit": "^2.2.1",
+    "@syncfusion/ej2-react-calendars": "^24.2.8",
     "antd": "^5.14.2",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.10",

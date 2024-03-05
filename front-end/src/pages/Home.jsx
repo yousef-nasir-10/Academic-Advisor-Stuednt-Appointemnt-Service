@@ -18,7 +18,7 @@ const Home = () => {
           <Button
             label="Applay Advisor"
             addedStyles="bg-black text-white "
-            handleClick={() => navigate('/apply-doctor')}
+            handleClick={() => navigate('/ApplayDoc')}
 
 
           />

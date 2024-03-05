@@ -86,7 +86,6 @@ const Login = () => {
          
         <Button
             label="Login"
-
             addedStyles="bg-black text-white mt-4"
         />
 
