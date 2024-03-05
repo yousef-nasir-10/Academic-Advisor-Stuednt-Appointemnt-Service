@@ -74,7 +74,12 @@ const Register = () => {
 
         <Button
             label="Register"
+<<<<<<< HEAD
             addedStyles="bg-black text-white mt-4"
+=======
+            addedStyles="bg-black text-white mt-4 "
+
+>>>>>>> 15cc5dff861052e9ec2020a911d56b2b7aca9adc
         />
 
          <div>
