@@ -3,26 +3,116 @@ import { useEffect, useState } from 'react';
 import { Dayjs } from 'dayjs';
 import { daysOfWeek } from '../constants';
 import { enableRipple } from '@syncfusion/ej2-base';
-import TimePicker from '../components/TimePicker';
 import { hoursPick, minPick } from '../constants';
-
+import { TimePicker } from 'antd';
+import Input from '../components/Input';
+import TextErea from '../components/TextErea';
+import { useDispatch, useSelector } from 'react-redux'
+import { AddDoctor, GetDoctorById } from '../API/doctor';
+import { ShowlLoader } from '../redux/loaderSlice'
+import { useNavigate } from 'react-router-dom';
+import { message } from 'antd'
 const ApplyDoc = () => {
 
 
 
 
-    const [value, setValue] = useState(null)
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const [alreadyApplayed, setAlreadyApplayed] = useState(false)
+
+    const checkIfDoctorApllayed = async () => {
+        try {
+            const response = await GetDoctorById(JSON.parse(localStorage.getItem("user")).id)
+            if (response.success) {
+                setAlreadyApplayed(true)
+                
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+
+    const [form, setForm] = useState({
+        firstName: '',
+        lastName: '',
+        phone: '',
+        email: '',
+        website: '',
+        dep: "",
+        address: "",
+        startTime: "",
+        endTime: "",
+        days: [],
+        fee: ""
+    })
 
     const onChange = (time) => {
-        console.log(` 0${time.$H}:0${time.$m}`);
-        setValue(time);
+        let startHour = ''
+        let startMin = ""
+        let endHour = ''
+        let endMin = ""
+
+        console.log(time);
+        time.forEach((element, index) => {
+            console.log(element.$H);
+            if (element.$H < 10) {
+                if (index === 0) {
+
+                    console.log(` ${index}: 0${element.$H}`);
+                    startHour = `0${element.$H}`
+                } else {
+                    console.log(` ${index}: 0${element.$H}`);
+                    endHour = `0${element.$H}`
+                }
+            } else {
+                if (index === 0) {
+
+                    console.log(` ${index}: 0${element.$H}`);
+                    startHour = `${element.$H}`
+                } else {
+                    console.log(` ${index}: ${element.$H}`);
+                    endHour = `${element.$H}`
+                }
+            }
+        });
+        time.forEach((element, index) => {
+            console.log(element.$m);
+            if (element.$m < 10) {
+                if (index === 0) {
+
+                    console.log(` ${index}: 0${element.$m}`);
+                    startMin = `0${element.$m}`
+                } else {
+                    console.log(` ${index}: 0${element.$m}`);
+                    endMin = `0${element.$m}`
+                }
+            } else {
+                if (index === 0) {
+
+                    console.log(` ${index}: ${element.$m}`);
+                    startMin = `${element.$m}`
+                } else {
+                    console.log(` ${index}: ${element.$m}`);
+                    endMin = `${element.$m}`
+                }
+            }
+        });
+        setForm(prevState => {
+            return {
+                ...prevState,
+                startTime: `${startHour}:${startMin}`,
+                endTime: `${endHour}:${endMin}`
+
+            }
+        })
+
+
 
 
     };
-
-
-
-
 
     function handleChange(event) {
 
@@ -66,106 +156,97 @@ const ApplyDoc = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
+        try {
+            dispatch(ShowlLoader(true))
+            const response = await AddDoctor({
+                ...form,
+                userId: JSON.parse(localStorage.getItem("user")).id,
+                status: "pending"
+            })
+            if (response.success) {
+                message.success(response.message)
+                navigate('/profile')
+
+                // console.log(form);
+            } else {
+                message.error(response.message)
+            }
 
 
-        console.log(form);
+        } catch (error) {
+            dispatch(ShowlLoader(false))
+        }
+
+
 
 
     }
 
 
 
-    const [form, setForm] = useState({
-        firstName: '',
-        lastName: '',
-        phone: '',
-        email: '',
-        website: '',
-        dep: "",
-        address: "",
-        startTime: "",
-        endTime: "",
-        days: []
-    })
-
-
 
     return (
         <div className='w-full flex flex-col items-center justify-between'>
             <h1 className='mb-4 '>Applay as An adviaor </h1>
+            {alreadyApplayed 
+            ?
             <form className="flex flex-col w-full p-4 " onSubmit={handleSubmit}>
 
 
                 <div className="grid md:grid-cols-2 md:gap-6">
-                    <div className="relative z-0 w-full mb-5 group">
-                        <input
-                            type="text"
-                            name="firstName"
-                            onChange={handleChange}
-                            id="floating_first_name"
-                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                            placeholder=" "
-                        // required 
-                        />
-                        <label htmlFor="floating_first_name" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">First name</label>
-                    </div>
-                    <div className="relative z-0 w-full mb-5 group">
-                        <input
-                            type="text"
-                            name="lastName"
-                            id="floating_last_name"
-                            onChange={handleChange}
-                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                            placeholder=" "
-                        // required 
-                        />
-                        <label htmlFor="floating_last_name" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Last name</label>
-                    </div>
+
+
                 </div>
 
+                {/*personal info*/}
                 <div className="grid md:grid-cols-2 md:gap-6">
-                    <div className="relative z-0 w-full mb-5 group">
-                        <input
-                            type="tel"
-                            pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
-                            onChange={handleChange}
-                            name="phone"
-                            id="floating_phone"
-                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                            placeholder=" "
-                        // required 
-                        />
-                        <label htmlFor="floating_phone" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Phone number (123-456-7890)</label>
-                    </div>
-                    <div className="relative z-0 w-full mb-5 group">
-                        <input
-                            type="email"
-                            name="email"
-                            id="floating_email"
-                            onChange={handleChange}
-                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                            placeholder=" "
-                        // required 
-                        />
-                        <label htmlFor="floating_email" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Email address</label>
-                    </div>
+                    <Input
+                        type="text"
+                        name="firstName"
+                        id="firstName"
+                        onChange={handleChange}
+                        label="First Name "
+                    />
+                    <Input
+                        type="text"
+                        name="lastName"
+                        id="lastName"
+                        onChange={handleChange}
+                        label="Last Name "
+                    />
+
+                    <Input
+                        type="email"
+                        name="email"
+                        id="floating_email"
+                        onChange={handleChange}
+                        label="Email address"
+                    />
+
+                    <Input
+                        type="tel"
+                        name="phone"
+                        id="floating_phone"
+                        pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                        onChange={handleChange}
+                        label="phone Number"
+                    />
+                    <Input
+                        type="text"
+                        name="website"
+                        id="website"
+                        onChange={handleChange}
+                        label="website"
+                    />
 
 
-                    <div className="relative z-0 w-full mb-5 group">
-                        <input
-                            type="text"
-                            name="website"
-                            id="website"
-                            onChange={handleChange}
-                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                            placeholder=" "
-                        // required
-                        />
-                        <label htmlFor="website" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">website</label>
-                    </div>
                     <div className='relative z-0 w-full mb-5 group'>
 
-                        <select id="countries" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <select
+                            id="countries"
+                            onChange={handleChange}
+                            name='dep'
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                             <option value="all"  >Choose a depatrment </option>
                             <option value="CS">CS</option>
                             <option value="IS">IS</option>
@@ -174,98 +255,60 @@ const ApplyDoc = () => {
                         </select>
                     </div>
 
-                    <div className="relative z-0 w-full mb-5 group">
-                        <textarea type="text" name="address" id="floating_company" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " />
-                        <label htmlFor="address" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">address </label>
-                    </div>
+                    <TextErea
+                        type="text"
+                        name="address"
+                        label="address"
+                        onChange={handleChange}
+
+                    />
 
 
-
-                </div>
-
-                <div className='flex    items-center justify-between   mt-10 border-t-2 border-black max-xl:flex-col pt-10 '>
-                    <div className='flex w-6/6 max-xl:flex-col  justify-start max-xl:w-full  '>
-                        <div className='flex justify-center items-center    '>
-                            <h1 className='mr-3 max-xl:h-full '> Avaliable form </h1>
-                            <div className='flex x-full  '>
-
-                                <TimePicker
-
-                                    onChange={handleChange}
-                                    format='HH:mm'
-                                    name='startTime'
-                                    timeNaming="Hours"
-                                    timeCount={hoursPick}
-                                />
-
-                            </div>
-                            <h1 className='mx-1'>:</h1>
-                            <div className='flex  justify-center items-center  max-xl:flex-col '>
-
-                                <TimePicker
-
-                                    onChange={onChange}
-                                    format='HH:mm'
-                                    name='endTime'
-                                    timeNaming="Minutes"
-                                    timeCount={minPick}
-
-
-                                />
-                            </div>
-                        </div>
-
-                        <div className='flex justify-center items-center max-xl:mt-2     '>
-                            <h1 className='xl:mx-3 w-full '> until</h1>
-                            <div className='flex x-full  '>
-
-                                <TimePicker
-
-                                    onChange={handleChange}
-                                    format='HH:mm'
-                                    name='startTime'
-                                    timeNaming="Hours"
-                                    timeCount={hoursPick}
-                                    value={value}
-                                />
-
-                            </div>
-                            <h1 className='mx-1'>:</h1>
-                            <div className='flex  justify-center items-center  max-xl:flex-col '>
-
-                                <TimePicker
-
-                                    onChange={onChange}
-                                    format='HH:mm'
-                                    name='endTime'
-                                    timeNaming="Minutes"
-                                    timeCount={minPick}
-                                    value={value}
-
-
-                                />
-                            </div>
-                        </div>
-
-
-
-                    </div>
-
-                    <div className="relative z-0 w-3/6 max-xl:w-full  mb-5 group">
-                        <input
-                            type="number"
-                            name="fee"
-                            id="fee"
-                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                            placeholder=" "
-
-                        />
-                        <label htmlFor="fee" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">fee</label>
-                    </div>
 
 
                 </div>
 
+
+                {/* time picker & fee */}
+                <div className='flex max-xl:flex-col    justify-center   mt-10 border-t-2 border-black  pt-10 '>
+                    <div className='flex w-full xl:w-2/6      max-xl:flex-col '>
+                        <div className='flex  w-6/6   items-center max-xl:w-full max-xl:mb-2     '>
+                            <h1 className='w-[150px] '> Set session time </h1>
+                            <div className=' '>
+
+                                <TimePicker.RangePicker
+
+                                    onChange={onChange}
+                                    format='HH:mm'
+                                    name='startTime'
+                                    timeNaming="Hours"
+                                    timeCount={hoursPick}
+                                    minuteStep={15}
+                                />
+
+                            </div>
+
+                        </div>
+
+
+
+
+
+                    </div>
+
+                    <Input
+                        type="number"
+                        name="fee"
+                        id="fee"
+                        onChange={handleChange}
+                        label="fee"
+                    />
+
+
+
+
+                </div>
+                {/* los dias de la semana */}
                 <div className='flex   items-center justify-center flex-wrap '>
                     {daysOfWeek.map(day => (
                         <div className="flex items-center m-2 justify-between w-[120px  " key={day.key}>
@@ -291,6 +334,11 @@ const ApplyDoc = () => {
                     addedStyles="bg-black text-white mt-10 w-[200px]"
                 />
             </form>
+            :
+            <div className='flex items-center justify-center w-full bg-slate-100 '>
+                <h1 className='text-xl font-bold w-4/6 text-center '>Your apllication has been rececived, bendening approval! </h1>
+            </div>
+            }
         </div>
     )
 }
