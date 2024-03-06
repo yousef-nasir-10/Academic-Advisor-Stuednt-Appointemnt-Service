@@ -2,7 +2,7 @@ import Button from '../components/Button'
 import { useEffect, useState } from 'react';
 import { Dayjs } from 'dayjs';
 import { daysOfWeek } from '../constants';
-import { enableRipple } from '@syncfusion/ej2-base';
+
 import TimePicker from '../components/TimePicker';
 import { hoursPick, minPick } from '../constants';
 
@@ -183,15 +183,15 @@ const ApplyDoc = () => {
 
                 </div>
 
-                <div className='flex    items-center justify-between   mt-10 border-t-2 border-black max-xl:flex-col pt-10 '>
+                <div className='flex  items-center justify-between   mt-10 border-t-2 border-black max-xl:flex-col pt-10 '>
                     <div className='flex w-6/6 max-xl:flex-col  justify-start max-xl:w-full  '>
-                        <div className='flex justify-center items-center    '>
-                            <h1 className='mr-3 max-xl:h-full '> Avaliable form </h1>
+                        <div className='flex  items-center justify-between    '>
+                            {/* <h1 className='mr-3  w-full'> Avaliable form </h1> */}
                             <div className='flex x-full  '>
 
                                 <TimePicker
 
-                                    onChange={handleChange}
+                                    onChange={(e)=>{ console.log(e.target.value)}}
                                     format='HH:mm'
                                     name='startTime'
                                     timeNaming="Hours"
@@ -199,9 +199,9 @@ const ApplyDoc = () => {
                                 />
 
                             </div>
-                            <h1 className='mx-1'>:</h1>
-                            <div className='flex  justify-center items-center  max-xl:flex-col '>
-
+                            {/* <h1 className='mx-1 '>:</h1> */}
+                            <div className='flex flex-col  '>
+{/* 
                                 <TimePicker
 
                                     onChange={onChange}
@@ -211,15 +211,15 @@ const ApplyDoc = () => {
                                     timeCount={minPick}
 
 
-                                />
+                                /> */}
                             </div>
                         </div>
 
-                        <div className='flex justify-center items-center max-xl:mt-2     '>
-                            <h1 className='xl:mx-3 w-full '> until</h1>
-                            <div className='flex x-full  '>
+                        <div className='flex items-center justify-center    '>
+                            {/* <h1 className='xl:text-center   w-[100px]  '> until</h1> */}
+                            <div className='flex  '>
 
-                                <TimePicker
+                                {/* <TimePicker
 
                                     onChange={handleChange}
                                     format='HH:mm'
@@ -227,12 +227,12 @@ const ApplyDoc = () => {
                                     timeNaming="Hours"
                                     timeCount={hoursPick}
                                     value={value}
-                                />
+                                /> */}
 
                             </div>
-                            <h1 className='mx-1'>:</h1>
+                            {/* <h1 className='mx-1'>:</h1> */}
                             <div className='flex  justify-center items-center  max-xl:flex-col '>
-
+{/* 
                                 <TimePicker
 
                                     onChange={onChange}
@@ -243,7 +243,7 @@ const ApplyDoc = () => {
                                     value={value}
 
 
-                                />
+                                /> */}
                             </div>
                         </div>
 

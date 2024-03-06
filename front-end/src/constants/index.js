@@ -30,9 +30,5 @@ for (let index = 0; index < 60; index = index + 5) {
 export const hoursPick = hours 
 export const minPick = minutes
 
-let a = [
-    hours,
-    minutes
-]
 
 
