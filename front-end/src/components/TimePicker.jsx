@@ -10,6 +10,7 @@ function classNames(...classes) {
 
 export default function TimePicker({ timeNaming, timeCount, onChange }) {
     return (
+<<<<<<< HEAD
         <div className='flex w-full flex-col items-center justify-center ' >
             <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">Identification</h3>
             <ul className="time-container">
@@ -35,6 +36,9 @@ export default function TimePicker({ timeNaming, timeCount, onChange }) {
 
 
         </div>
+=======
+        <div></div>
+>>>>>>> dae040e98a1c08896d17a7904416a24711f952d2
     )
 }
 

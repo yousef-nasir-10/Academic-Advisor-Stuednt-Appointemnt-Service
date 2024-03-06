@@ -45,7 +45,9 @@ export const LoginUser = async (payload) => {
         }
 
         // decrypt password
+        
         const user = querySnapshot.docs[0].data()
+        user.id = querySnapshot.docs[0].id
         const bytes = CryptoJS.AES.decrypt(
             user.password,
             encDecString
