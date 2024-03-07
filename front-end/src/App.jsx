@@ -6,7 +6,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/Profile";
 import { useSelector } from "react-redux";
 import ApplyDoc from "./pages/ApplyDoc";
-import DoctorForm from "./pages/DoctorForm";
+import Admin from "./pages/Admin";
+
 
 
 
@@ -31,7 +32,9 @@ function App() {
             path="/ApplayDoc"
             element={<ProtectedRoute> <ApplyDoc /> </ProtectedRoute>}
           />
-          <Route path="/apply-doctor" element={<ProtectedRoute> <DoctorForm /> </ProtectedRoute>} />
+
+          <Route path="/admin" element={<ProtectedRoute> <Admin/> </ProtectedRoute>} />
+
 
         </Routes>
       </BrowserRouter>

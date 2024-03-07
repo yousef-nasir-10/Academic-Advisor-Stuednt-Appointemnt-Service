@@ -17,7 +17,10 @@ const Register = () => {
       console.log(`${form.username} ${form.email} ${form.password}`);
 
       try {
-         const response = await CreateUser(form)
+         const response = await CreateUser({
+            ...form, 
+            role: "user",
+         })
          if(response.success){
             message.success(response.message)
             navigate('/login')

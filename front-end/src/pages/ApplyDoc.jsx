@@ -2,18 +2,12 @@ import Button from '../components/Button'
 import { useEffect, useState } from 'react';
 import { Dayjs } from 'dayjs';
 import { daysOfWeek } from '../constants';
-<<<<<<< HEAD
-
-import TimePicker from '../components/TimePicker';
-=======
 import { enableRipple } from '@syncfusion/ej2-base';
->>>>>>> dae040e98a1c08896d17a7904416a24711f952d2
-import { hoursPick, minPick } from '../constants';
 import { TimePicker } from 'antd';
 import Input from '../components/Input';
 import TextErea from '../components/TextErea';
 import { useDispatch, useSelector } from 'react-redux'
-import { AddDoctor, GetDoctorById } from '../API/doctor';
+import { AddDoctor, CheckIfDoctorApplied  } from '../API/doctor';
 import { ShowlLoader } from '../redux/loaderSlice'
 import { useNavigate } from 'react-router-dom';
 import { message } from 'antd'
@@ -26,9 +20,10 @@ const ApplyDoc = () => {
     const navigate = useNavigate()
     const [alreadyApplayed, setAlreadyApplayed] = useState(false)
 
-    const checkIfDoctorApllayed = async () => {
+    const hasDoctorApplied = async () => {
         try {
-            const response = await GetDoctorById(JSON.parse(localStorage.getItem("user")).id)
+            const response = await CheckIfDoctorApplied(JSON.parse(localStorage.getItem("user")).id)
+            console.log(response);
             if (response.success) {
                 setAlreadyApplayed(true)
                 
@@ -39,6 +34,10 @@ const ApplyDoc = () => {
         }
 
     }
+
+    useEffect(()=> {
+        hasDoctorApplied()
+    },[])
 
     const [form, setForm] = useState({
         firstName: '',
@@ -193,7 +192,7 @@ const ApplyDoc = () => {
     return (
         <div className='w-full flex flex-col items-center justify-between'>
             <h1 className='mb-4 '>Applay as An adviaor </h1>
-            {alreadyApplayed 
+            {!alreadyApplayed 
             ?
             <form className="flex flex-col w-full p-4 " onSubmit={handleSubmit}>
 
@@ -273,14 +272,6 @@ const ApplyDoc = () => {
 
                 </div>
 
-<<<<<<< HEAD
-                <div className='flex  items-center justify-between   mt-10 border-t-2 border-black max-xl:flex-col pt-10 '>
-                    <div className='flex w-6/6 max-xl:flex-col  justify-start max-xl:w-full  '>
-                        <div className='flex  items-center justify-between    '>
-                            {/* <h1 className='mr-3  w-full'> Avaliable form </h1> */}
-                            <div className='flex x-full  '>
-=======
->>>>>>> dae040e98a1c08896d17a7904416a24711f952d2
 
                 {/* time picker & fee */}
                 <div className='flex max-xl:flex-col    justify-center   mt-10 border-t-2 border-black  pt-10 '>
@@ -289,75 +280,20 @@ const ApplyDoc = () => {
                             <h1 className='w-[150px] '> Set session time </h1>
                             <div className=' '>
 
-<<<<<<< HEAD
-                                    onChange={(e)=>{ console.log(e.target.value)}}
-=======
                                 <TimePicker.RangePicker
 
                                     onChange={onChange}
->>>>>>> dae040e98a1c08896d17a7904416a24711f952d2
                                     format='HH:mm'
                                     name='startTime'
                                     timeNaming="Hours"
-                                    timeCount={hoursPick}
                                     minuteStep={15}
                                 />
 
                             </div>
-<<<<<<< HEAD
-                            {/* <h1 className='mx-1 '>:</h1> */}
-                            <div className='flex flex-col  '>
-{/* 
-                                <TimePicker
-
-                                    onChange={onChange}
-                                    format='HH:mm'
-                                    name='endTime'
-                                    timeNaming="Minutes"
-                                    timeCount={minPick}
-
-
-                                /> */}
-                            </div>
-                        </div>
-
-                        <div className='flex items-center justify-center    '>
-                            {/* <h1 className='xl:text-center   w-[100px]  '> until</h1> */}
-                            <div className='flex  '>
-
-                                {/* <TimePicker
-
-                                    onChange={handleChange}
-                                    format='HH:mm'
-                                    name='startTime'
-                                    timeNaming="Hours"
-                                    timeCount={hoursPick}
-                                    value={value}
-                                /> */}
-
-                            </div>
-                            {/* <h1 className='mx-1'>:</h1> */}
-                            <div className='flex  justify-center items-center  max-xl:flex-col '>
-{/* 
-                                <TimePicker
-
-                                    onChange={onChange}
-                                    format='HH:mm'
-                                    name='endTime'
-                                    timeNaming="Minutes"
-                                    timeCount={minPick}
-                                    value={value}
-
-
-                                /> */}
-                            </div>
-                        </div>
-=======
 
                         </div>
 
 
->>>>>>> dae040e98a1c08896d17a7904416a24711f952d2
 
 
 

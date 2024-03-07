@@ -1,29 +1,58 @@
-import { addDoc, collection, getDoc } from "firebase/firestore"
+import { addDoc, collection, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore"
 import firestoreDatabase from "../firebaseConfig"
 export const AddDoctor = async (payload) => {
     try {
-        await addDoc(collection(firestoreDatabase, "doctors"), payload)
+        await setDoc(doc(firestoreDatabase, "doctors", payload.userId), payload)
         return {
             success: true,
             message: "Doctor added successfully, please wait for approval"
         }
     } catch (error) {
-        return{
+        return {
             success: false,
             message: error.message
         }
     }
 }
 
-export const GetDoctorById = async (id) =>{
+export const CheckIfDoctorApplied = async (id) => {
     try {
-        const doctor = await getDoc(doc(firestoreDatabase, "doctors", id))
-        if (!doctor.exists) {
-            throw new Error ("Doctor not found")
+
+        const doctors = await getDocs(
+            query(collection(firestoreDatabase, "doctors"), where("userId", "==", id))
+        )
+        if (doctors.size > 0) {
+            return {
+                success: true,
+                message: "Doctor has already applied"
+            }
         }
-        return{
+
+        return {
+            success: false,
+            message: "Doctor account not applied"
+        }
+
+
+    } catch (error) {
+        return {
+            success: false,
+            message: error.message
+        }
+    }
+}
+
+export const GetAllDoctors = async () => {
+    try {
+        const doctors = await getDocs(collection(firestoreDatabase, "doctors"))
+        return {
             success: true,
-            data: doctor.data()
+            data: doctors.docs.map((doc) => {
+                return {
+                    ...doc.data(),
+                    id: doc.id,
+                }
+            })
         }
     } catch (error) {
         return{
