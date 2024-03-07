@@ -1,8 +1,31 @@
-import React from 'react'
+import { useEffect, useState } from 'react'
 import Button from '../components/Button'
 import { useNavigate } from 'react-router-dom'
+import { GetAllDoctors } from '../API/doctor'
+import { message } from 'antd'
+import { DoctorCard } from '../components/DoctorCard'
 
 const Home = () => {
+
+  const [doctors, setDoctors] = useState([])
+
+  const getData = async () => {
+    try {
+      const response = await GetAllDoctors()
+      if (response.success) {
+        console.log(response.data);
+        setDoctors(response.data)
+      } else {
+        message.error(response.message)
+      }
+    } catch (error) {
+      message.error(error.message)
+    }
+  }
+  useEffect(() => {
+    getData()
+  }, [])
+
   const navigate = useNavigate()
   return (
     <div className=''>
@@ -27,6 +50,17 @@ const Home = () => {
 
 
       </div>
+
+      <div className='flex mt-4 w-full justify-center flex-wrap gap-4'>
+
+        {doctors.map((doctor) => (
+          <DoctorCard
+            {...doctor}
+            handleClick = {()=> navigate(`/book-appointment/${doctor.id}`) }
+          />
+        ))}
+      </div>
+
     </div>
   )
 }

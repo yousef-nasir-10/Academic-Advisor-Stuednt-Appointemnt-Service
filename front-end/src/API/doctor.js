@@ -1,8 +1,13 @@
-import { addDoc, collection, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore"
+import { addDoc, collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore"
 import firestoreDatabase from "../firebaseConfig"
 export const AddDoctor = async (payload) => {
     try {
         await setDoc(doc(firestoreDatabase, "doctors", payload.userId), payload)
+        await updateDoc(doc(firestoreDatabase, "users", payload.userId), {
+            role: "advisor"
+        })
+        
+
         return {
             success: true,
             message: "Doctor added successfully, please wait for approval"
@@ -59,5 +64,39 @@ export const GetAllDoctors = async () => {
             success: false,
             message: error.message
         }
+    }
+}
+
+export const UpateDoctor = async (payload) => {
+    try {
+        await setDoc(doc(firestoreDatabase, "doctors", payload.id), payload)
+        return{
+            success: true,
+            message: "Doctor updated successfully"
+        }
+
+
+    } catch (error) {
+        return{
+            success: false,
+            message: error.message
+        }
+    }
+}
+
+export const GetDoctorById = async (id) => {
+    try {
+
+        const user = await getDoc(doc(firestoreDatabase, "doctors", id))
+        return {
+            success: true,
+            data: {
+                ...user.data(),
+                id: user.id
+            }
+        }
+    } catch (error) {
+        return error
+
     }
 }

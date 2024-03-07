@@ -1,8 +1,8 @@
 import firestoreDatabase from "../firebaseConfig"
-import {collection, addDoc, getDocs, query, where} from 'firebase/firestore'
+import { collection, addDoc, getDocs, query, where, getDoc, doc } from 'firebase/firestore'
 import CryptoJS from 'crypto-js';
 
-let encDecString= "fjjfsghhb"
+let encDecString = "fjjfsghhb"
 
 export const CreateUser = async (payload) => {
     try {
@@ -11,7 +11,7 @@ export const CreateUser = async (payload) => {
         const qry = query(collection(firestoreDatabase, "users"), where("email", "==", payload.email))
         const querySnapshot = await getDocs(qry)
 
-        if(querySnapshot.size > 0 ){
+        if (querySnapshot.size > 0) {
             throw new Error("user already exists")
         }
 
@@ -40,12 +40,12 @@ export const LoginUser = async (payload) => {
         const qry = query(collection(firestoreDatabase, "users"), where("email", "==", payload.email))
         const querySnapshot = await getDocs(qry)
 
-        if(querySnapshot.size == 0 ){
+        if (querySnapshot.size == 0) {
             throw new Error("user does not exist")
         }
 
         // decrypt password
-        
+
         const user = querySnapshot.docs[0].data()
         user.id = querySnapshot.docs[0].id
         const bytes = CryptoJS.AES.decrypt(
@@ -54,12 +54,12 @@ export const LoginUser = async (payload) => {
         )
         const orginalPassword = bytes.toString(CryptoJS.enc.Utf8)
 
-        if(orginalPassword != payload.password ){
+        if (orginalPassword != payload.password) {
             throw new Error("Incoorect password")
         }
 
         return {
-            success: true, 
+            success: true,
             message: "User logged in seccessfully",
             data: user
         }
@@ -84,9 +84,26 @@ export const GetAllUsers = async () => {
             })
         }
     } catch (error) {
-        return{
+        return {
             success: false,
             message: error.message
         }
+    }
+}
+
+export const GetUserById = async (id) => {
+    try {
+
+        const user = await getDoc(doc(firestoreDatabase, "users", id))
+        return {
+            success: true,
+            data: {
+                ...user.data(),
+                id: user.id
+            }
+        }
+    } catch (error) {
+        return error
+
     }
 }

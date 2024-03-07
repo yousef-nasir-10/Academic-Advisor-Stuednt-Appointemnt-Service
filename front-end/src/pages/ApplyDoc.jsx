@@ -165,8 +165,10 @@ const ApplyDoc = () => {
             const response = await AddDoctor({
                 ...form,
                 userId: JSON.parse(localStorage.getItem("user")).id,
-                status: "pending"
+                status: "pending",
+                
             })
+            
             if (response.success) {
                 message.success(response.message)
                 navigate('/profile')

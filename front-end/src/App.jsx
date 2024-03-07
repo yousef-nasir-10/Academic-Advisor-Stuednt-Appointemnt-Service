@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
@@ -7,6 +7,8 @@ import Profile from "./pages/Profile";
 import { useSelector } from "react-redux";
 import ApplyDoc from "./pages/ApplyDoc";
 import Admin from "./pages/Admin";
+import BookAppointments from "./pages/BookAppointments";
+
 
 
 
@@ -34,6 +36,8 @@ function App() {
           />
 
           <Route path="/admin" element={<ProtectedRoute> <Admin/> </ProtectedRoute>} />
+          <Route path="/book-appointment/:id" element={<ProtectedRoute> <BookAppointments/> </ProtectedRoute>} />
+
 
 
         </Routes>
