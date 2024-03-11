@@ -4,15 +4,22 @@ import { GetDoctorById } from '../API/doctor'
 import { message } from 'antd'
 import Button from '../components/Button'
 import moment from 'moment';
-import { BookAppointment } from '../API/appointments'
+import { BookAppointment, GetDoctorAppointmentsOnDate } from '../API/appointments'
+import Datepicker from "react-tailwindcss-datepicker";
 
 
 const BookAppointments = () => {
-    
+
     const [doctor, setDoctor] = useState(null)
     const { id } = useParams()
     const [date, setDate] = useState('')
+
+    const [value, setValue] = useState({
+        startDate: null,
+        endDate: null
+    });
     const [selectedSloat, setSelectedSloat] = useState("")
+    const [bookedSloats, setBookedSloats] = useState([])
     const navigate = useNavigate()
 
     const getData = async () => {
@@ -30,10 +37,22 @@ const BookAppointments = () => {
         }
     }
 
+    const handleValueChange = (newValue) => {
+        console.log("newValue:", newValue.startDate);
+        setDate(newValue.startDate);
+        setValue(newValue)
+    }
+
     useEffect(() => {
         getData()
 
     }, [])
+    useEffect(() => {
+        if (date) {
+            getBookedSlots()
+        }
+
+    }, [date])
 
     const getSloatData = () => {
         const day = moment(date).format("dddd")
@@ -46,25 +65,73 @@ const BookAppointments = () => {
 
         let sloatDuration = 30 // in minutes 
         const slots = []
+        const booked = []
+        const a = []
+
+
+
         while (startTime < endTime) {
+            // if (bookedSloats?.find((slot) => slot.slot === startTime.format("HH:mm"))) {
+            //     booked.push(startTime.format("HH:mm"))
+
+            // }
+            // if (!bookedSloats?.find((slot) => slot.slot === startTime.format("HH:mm"))) {
+            //     slots.push(startTime.format("HH:mm"))
+
+            // }
             slots.push(startTime.format("HH:mm"))
+
+
             startTime.add(sloatDuration, "minutes")
         }
+
+
+        console.log(a);
         return (
             <>
-                {slots.map(slot => (
-                    <div
-                        className={`flex bg-[#19774025] p-2 rounded-md cursor-pointer ${selectedSloat === slot ? "bg-[#1d7e9e6b]" : ""}`}
-                        onClick={() => {
+                {slots.map((slot, index) => {
+                    const isBooked = bookedSloats?.find(
+                        (bookedSloat) => bookedSloat.slot === slot
+                    )
+                    return (
 
-                            setSelectedSloat(slot)
-                        }}
-                    >
-                        <span>{moment(slot, "HH:mm A").format("HH:mm A")}   - {moment(slot, "HH:mm").add(sloatDuration, "minutes").format("HH:mm A")}</span>
-                    </div>
-                ))}
+                        <div
+                            className={
+                                `flex border-spacing-2  bg-[#19774025] p-2 rounded-md cursor-pointer   
+                                ${selectedSloat === slot ? "bg-[#1d7e9e6b]" : ""}
+                                ${isBooked? "pointer-events-none bg-[#77191925] " : ""}
+                                
+                                `
+                            }
+                            onClick={() => {
+
+                                setSelectedSloat(slot)
+                            }}
+
+                        >
+                            <span>{moment(slot, "HH:mm A").format("HH:mm A")}   - {moment(slot, "HH:mm").add(sloatDuration, "minutes").format("HH:mm A")}</span>
+                        </div>
+                    )
+                })}
+
+
             </>
         )
+    }
+
+    const getBookedSlots = async () => {
+        try {
+            const response = await GetDoctorAppointmentsOnDate(id, date)
+            console.log(response);
+            if (response.success) {
+                setBookedSloats(response.data)
+            } else {
+                message.error(response.message)
+            }
+
+        } catch (error) {
+            message.error(error.message)
+        }
     }
 
     const onBookAppointment = async () => {
@@ -73,16 +140,16 @@ const BookAppointments = () => {
                 doctorId: doctor.id,
                 userId: JSON.parse(localStorage.getItem("user")).id,
                 date,
-                slot : selectedSloat,
+                slot: selectedSloat,
                 doctorName: `${doctor.firstName} ${doctor.lastName}`,
                 userName: JSON.parse(localStorage.getItem("user")).username,
                 bookedOn: moment().format("DD-MM-YYYY HH:mm A")
             }
             const response = await BookAppointment(payload)
-            if(message.success){
+            if (message.success) {
                 message.success(response.message)
                 navigate('/profile')
-            }else{
+            } else {
                 message.error(response.message)
             }
         } catch (error) {
@@ -114,17 +181,40 @@ const BookAppointments = () => {
 
             <div className=' flex flex-col gap-4 '>
                 <div className='flex items-center justify-center w-full mt-10 max-md:flex-col gap-2   ' >
-                    <div className=' flex max-md:flex-col items-center justify-around '>
+                    <div className=' flex max-md:flex-col items-center justify-around gap-4 '>
 
                         <span className='font-bold'>Select Date:</span>
-                        <input
+                        {/* <input
                             type='date'
                             value={date}
                             className='mx-2 bottom-2 bg-[#1070778e] rounded-md text-white text-center p-1 cursor-pointer'
-                            onChange={(e) => setDate(e.target.value)}
+                            onChange={(e) =>{
+                                setDate(e.target.value)
+                                console.log(date);
+                            } }
                             min={moment().format("YYYY-MM-DD")}
 
-                        />
+                        /> */}
+                        <div>
+
+                            <Datepicker
+                                value={value}
+                                onChange={handleValueChange}
+                                asSingle={true}
+                                minDate={moment().format("YYYY-MM-DD")}
+                                classNames="outline-none "
+                                showShortcuts={true}
+                                primaryColor={"sky"} 
+
+                                configs={{
+                                    shortcuts: {
+                                        today: "Today",
+                                    },
+                                  
+                                }}
+
+                            />
+                        </div>
                     </div>
                     {/* 
                     <Button
@@ -136,7 +226,8 @@ const BookAppointments = () => {
                 </div>
 
 
-                <div className="flex mt-4 gap-6 flex-wrap justify-center ">
+                <div className="flex mt-4 gap-6 flex-wrap max-md:justify-start justify-center
+                 ">
                     {date && getSloatData()}
                 </div>
 
@@ -150,7 +241,7 @@ const BookAppointments = () => {
                         <Button
                             label="Cancel"
                             addedStyles="bg-black text-white w-[300px] "
-                            handleClick={()=>{navigate("/")}}
+                            handleClick={() => { navigate("/") }}
                         />
                     </div>
 
