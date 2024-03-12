@@ -37,7 +37,7 @@ const Home = () => {
             id="exampleSearch"
             placeholder="Search Advisor" />
         </div>
-        <div className='w-[300px] justify-end flex  ' >
+        {/* <div className='w-[300px] justify-end flex  ' >
           <Button
             label="Applay Advisor"
             addedStyles="bg-black text-white "
@@ -46,7 +46,7 @@ const Home = () => {
 
           />
 
-        </div>
+        </div> */}
 
 
       </div>

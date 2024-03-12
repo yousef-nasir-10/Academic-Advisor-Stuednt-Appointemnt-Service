@@ -20,6 +20,7 @@ const BookAppointments = () => {
     });
     const [selectedSloat, setSelectedSloat] = useState("")
     const [bookedSloats, setBookedSloats] = useState([])
+    const [reason, setReason] = useState("")
     const navigate = useNavigate()
 
     const getData = async () => {
@@ -57,7 +58,7 @@ const BookAppointments = () => {
     const getSloatData = () => {
         const day = moment(date).format("dddd")
         if (!doctor.days.includes(day)) {
-            return <h3>Doctor is not available on {moment().format("YYYY-MM-DD")}</h3>
+            return <h3>Doctor is not available on {moment(date).format("YYYY-MM-DD")}</h3>
         }
 
         let startTime = moment(doctor.startTime, "HH:mm")
@@ -91,7 +92,7 @@ const BookAppointments = () => {
             <>
                 {slots.map((slot, index) => {
                     const isBooked = bookedSloats?.find(
-                        (bookedSloat) => bookedSloat.slot === slot
+                        (bookedSloat) => bookedSloat.slot === slot && bookedSloat.status !== 'cancelled'
                     )
                     return (
 
@@ -109,7 +110,7 @@ const BookAppointments = () => {
                             }}
 
                         >
-                            <span>{moment(slot, "HH:mm A").format("HH:mm A")}   - {moment(slot, "HH:mm").add(sloatDuration, "minutes").format("HH:mm A")}</span>
+                            <span>{moment(slot, "HH:mm ").format("HH:mm ")}   - {moment(slot, "HH:mm").add(sloatDuration, "minutes").format("HH:mm ")}</span>
                         </div>
                     )
                 })}
@@ -143,7 +144,9 @@ const BookAppointments = () => {
                 slot: selectedSloat,
                 doctorName: `${doctor.firstName} ${doctor.lastName}`,
                 userName: JSON.parse(localStorage.getItem("user")).username,
-                bookedOn: moment().format("DD-MM-YYYY HH:mm A")
+                bookedOn: moment().format("DD-MM-YYYY HH:mm "),
+                reason: reason,
+                status: "pending"
             }
             const response = await BookAppointment(payload)
             if (message.success) {
@@ -230,6 +233,20 @@ const BookAppointments = () => {
                  ">
                     {date && getSloatData()}
                 </div>
+
+                {selectedSloat && 
+                    <div className='flex mt-4 gap-6 flex-wrap max-md:justify-start justify-center '>
+                        <textarea
+                             name="reason" 
+                             value={reason}
+                             onChange={(e) => setReason(e.target.value)}
+                             placeholder='It would be more beneficial to state the reasons behind the appointments.  '
+                             className='w-4/6 max-md:w-full p-2 border-2  max-h-16 rounded-xl '
+                         >
+                            
+                            </textarea>
+                    </div>
+                }
 
                 {selectedSloat &&
                     <div className='flex justify-center mt-10 gap-2 '>
