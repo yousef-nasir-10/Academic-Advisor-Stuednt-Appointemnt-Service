@@ -1,6 +1,6 @@
 import { Tabs, message } from 'antd'
 import { useEffect, useState } from 'react'
-import UsersList from '../components/UsersList'
+
 import DoctorsList from '../components/DoctorsList'
 import { useNavigate } from 'react-router-dom'
 import { GetUserById } from '../API/users'
@@ -31,7 +31,7 @@ function Admin() {
         <div className='p-4'>
             <Tabs card>
                 <Tabs.TabPane tab="Users" key="1">
-                    <UsersList />
+                    
                 </Tabs.TabPane>
                 <Tabs.TabPane tab="Doctors" key="2">
                     <DoctorsList />

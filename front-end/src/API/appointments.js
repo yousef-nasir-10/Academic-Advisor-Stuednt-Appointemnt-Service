@@ -102,6 +102,8 @@ export const GetUserAppointments = async (userId) => {
 
 export const UpdateAppointmentsStatus = async (id, status) => {
     try {
+        
+        
         await updateDoc(doc(firestoreDatabase, "appointments", id),{
             status: status
         })
