@@ -129,8 +129,8 @@ const UserView = () => {
       return <h3>Doctor is not available on {moment(date).format("YYYY-MM-DD")}</h3>
     }
 
-    let startTime = moment(doctor.startTime, "HH:mm")
-    let endTime = moment(doctor.endTime, "HH:mm")
+    let startTime = moment(doctor.startTime, "hh:mm A")
+    let endTime = moment(doctor.endTime, "hh:mm A")
 
     let sloatDuration = 30 // in minutes 
     const slots = []
@@ -148,7 +148,7 @@ const UserView = () => {
       //     slots.push(startTime.format("HH:mm"))
 
       // }
-      slots.push(startTime.format("HH:mm"))
+      slots.push(startTime.format("hh:mm A "))
 
 
       startTime.add(sloatDuration, "minutes")
@@ -180,7 +180,7 @@ const UserView = () => {
               }}
 
             >
-              <span>{moment(slot, "HH:mm ").format("HH:mm ")}   - {moment(slot, "HH:mm").add(sloatDuration, "minutes").format("HH:mm ")}</span>
+              <span>{moment(slot, "hh:mm A").format("hh:mm A ")}   - {moment(slot, "hh:mm A ").add(sloatDuration, "minutes").format("hh:mm A")}</span>
             </div>
 
 
@@ -319,7 +319,7 @@ const UserView = () => {
                       </DemoContainer>
                     </LocalizationProvider>
                   </Box>
-                  <div className="grid mt-2 grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3">
+                  <div className="grid mt-2 grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-2">
 
                     {doctor && getSloatData()}
                   </div>
