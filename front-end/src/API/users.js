@@ -1,5 +1,5 @@
 import firestoreDatabase from "../firebaseConfig"
-import { collection, addDoc, getDocs, query, where, getDoc, doc } from 'firebase/firestore'
+import { collection, addDoc, getDocs, query, where, getDoc, doc, setDoc } from 'firebase/firestore'
 import CryptoJS from 'crypto-js';
 
 let encDecString = "fjjfsghhb"
@@ -105,5 +105,22 @@ export const GetUserById = async (id) => {
     } catch (error) {
         return error
 
+    }
+}
+
+export const UpateUser = async (payload) => {
+    try {
+        await setDoc(doc(firestoreDatabase, "users", payload.id), payload)
+        return{
+            success: true,
+            message: " Updated successfully"
+        }
+
+
+    } catch (error) {
+        return{
+            success: false,
+            message: error.message
+        }
     }
 }

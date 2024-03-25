@@ -13,6 +13,7 @@ import { AddDoctor } from '../API/doctor';
 import { ShowlLoader } from '../redux/loaderSlice';
 import { useDispatch } from 'react-redux';
 import Button from '../components/Button';
+import { UpateUser } from '../API/users';
 
 
 
@@ -26,21 +27,29 @@ const Home = () => {
   const [isChecked, setIsChecked] = useState(
     new Array(daysOfWeek.length).fill(false)
   )
-  const [daySlots, setDaySlots] = useState([])
-  const [sunVal, setSanVal] = useState([])
-  const [monVal, setMonVal] = useState([])
-  const [tuesVal, setTuesVal] = useState([])
-  const [wensVal, setWensVal] = useState([])
-  const [thursVal, setThursVal] = useState([])
-  const [friVal, setFriVal] = useState([])
-  const [saturVal, setSaturVal] = useState([])
+  const [daySlots, setDaySlots] = useState([{ startTime: null, endTime: null }])
+  const [sunVal, setSanVal] = useState([{ startTime: null, endTime: null }])
+  const [monVal, setMonVal] = useState([{ startTime: null, endTime: null }])
+  const [tuesVal, setTuesVal] = useState([{ startTime: null, endTime: null }])
+  const [wensVal, setWensVal] = useState([{ startTime: null, endTime: null }])
+  const [thursVal, setThursVal] = useState([{ startTime: null, endTime: null }])
+  const [friVal, setFriVal] = useState([{ startTime: null, endTime: null }])
+  const [saturVal, setSaturVal] = useState([{ startTime: null, endTime: null }])
+  const [isSlotUpdated, setIsSlotUpdated] = useState(false)
+  const [startAt, setStartAt] = useState(null)
+  const [updateProfile, setUpdateProfile] = useState({
+    firstName: false,
+    lastName: false,
+    email: false,
+    office: false,
+    imgProfile: false
+  })
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
     phone: '',
     email: '',
     dep: "",
-    address: "",
     startTime: "",
     endTime: "",
     days: [],
@@ -48,7 +57,6 @@ const Home = () => {
     imgProfile: ""
   })
 
-  const [startAt, setStartAt] = useState(null)
 
   const handleSunPeriodsChange = (start, end, i) => {
     const inputData = [...sunVal]
@@ -56,6 +64,7 @@ const Home = () => {
     if (dayjs(end).diff(start) > 0) {
 
       inputData[i] = { startTime: dayjs(start).format("hh:mm A"), endTime: dayjs(end).format("hh:mm A") }
+      setIsSlotUpdated(!isSlotUpdated)
 
     } else {
       console.log("invalid period ");
@@ -70,6 +79,7 @@ const Home = () => {
     if (dayjs(end).diff(start) > 0) {
 
       inputData[i] = { startTime: dayjs(start).format("hh:mm A"), endTime: dayjs(end).format("hh:mm A") }
+      setIsSlotUpdated(!isSlotUpdated)
 
     } else {
       console.log("invalid period ");
@@ -82,6 +92,7 @@ const Home = () => {
     if (dayjs(end).diff(start) > 0) {
 
       inputData[i] = { startTime: dayjs(start).format("hh:mm A"), endTime: dayjs(end).format("hh:mm A") }
+      setIsSlotUpdated(!isSlotUpdated)
 
     } else {
       console.log("invalid period ");
@@ -94,6 +105,7 @@ const Home = () => {
     if (dayjs(end).diff(start) > 0) {
 
       inputData[i] = { startTime: dayjs(start).format("hh:mm A"), endTime: dayjs(end).format("hh:mm A") }
+      setIsSlotUpdated(!isSlotUpdated)
 
     } else {
       console.log("invalid period ");
@@ -106,6 +118,7 @@ const Home = () => {
     if (dayjs(end).diff(start) > 0) {
 
       inputData[i] = { startTime: dayjs(start).format("hh:mm A"), endTime: dayjs(end).format("hh:mm A") }
+      setIsSlotUpdated(!isSlotUpdated)
 
     } else {
       console.log("invalid period ");
@@ -118,6 +131,7 @@ const Home = () => {
     if (dayjs(end).diff(start) > 0) {
 
       inputData[i] = { startTime: dayjs(start).format("hh:mm A"), endTime: dayjs(end).format("hh:mm A") }
+      setIsSlotUpdated(!isSlotUpdated)
 
     } else {
       console.log("invalid period ");
@@ -130,6 +144,7 @@ const Home = () => {
     if (dayjs(end).diff(start) > 0) {
 
       inputData[i] = { startTime: dayjs(start).format("hh:mm A"), endTime: dayjs(end).format("hh:mm A") }
+      setIsSlotUpdated(!isSlotUpdated)
 
     } else {
       console.log("invalid period ");
@@ -183,16 +198,7 @@ const Home = () => {
 
 
   }
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    console.log("here");
-    isChecked.forEach((element, index) => {
-      
-    });
-
-
-
-
+  useEffect(() => {
     setDaySlots([
       {
         day: "Sunday",
@@ -209,7 +215,7 @@ const Home = () => {
       {
         day: "Wednesday",
         slots: wensVal
-      }, 
+      },
       {
         day: "Thursday",
         slots: thursVal
@@ -223,81 +229,125 @@ const Home = () => {
         slots: saturVal
       },
 
-      
+
     ])
+
+    setForm(prevState => {
+      return {
+        ...prevState,
+        days: daySlots
+      }
+    })
+  }, [isSlotUpdated])
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    console.log("here");
+    console.log(form);
+
+
+
+
+
+    // setDaySlots([
+    //   {
+    //     day: "Sunday",
+    //     slots: sunVal
+    //   },
+    //   {
+    //     day: "Monday",
+    //     slots: monVal
+    //   },
+    //   {
+    //     day: "Tuesday",
+    //     slots: tuesVal
+    //   },
+    //   {
+    //     day: "Wednesday",
+    //     slots: wensVal
+    //   }, 
+    //   {
+    //     day: "Thursday",
+    //     slots: thursVal
+    //   },
+    //   {
+    //     day: "Friday",
+    //     slots: friVal
+    //   },
+    //   {
+    //     day: "Saturday",
+    //     slots: saturVal
+    //   },
+
+
+    // ])
 
 
     console.log(daySlots);
 
-    // try {
-    //     dispatch(ShowlLoader(true))
-    //     const response = await AddDoctor({
-    //         ...form,
-    //         userId: JSON.parse(localStorage.getItem("user")).id,
-    //         status: "pending",
-
-    //     })
-
-    //     if (response.success) {
-    //         message.success(response.message)
-    //         navigate('/profile')
-
-    //         // console.log(form);
-    //     } else {
-    //         message.error(response.message)
-    //     }
+    try {
+      dispatch(ShowlLoader(true))
+      const response = await UpateUser(form)({
+        ...form,
+        id: JSON.parse(localStorage.getItem("user")).id,
 
 
-    // } catch (error) {
-    //     dispatch(ShowlLoader(false))
-    // }
+      })
+
+      if (response.success) {
+        message.success(response.message)
+        navigate('/profile')
+
+        // console.log(form);
+      } else {
+        message.error(response.message)
+      }
+
+
+    } catch (error) {
+      dispatch(ShowlLoader(false))
+    }
 
 
 
 
   }
 
-
-
-
-
-
-
   const handleAdd = (index) => {
     switch (index) {
       case 0:
-        const sun = [...sunVal, []]
+        const sun = [...sunVal, [{ startTime: null, endTime: null }]]
         setSanVal(sun)
         console.log(sunVal);
         break;
       case 1:
-        const mon = [...monVal, []]
+        const mon = [...monVal, [{ startTime: null, endTime: null }]]
         setMonVal(mon)
         break;
       case 2:
-        const tues = [...tuesVal, []]
+        const tues = [...tuesVal, [{ startTime: null, endTime: null }]]
         setTuesVal(tues)
         break;
       case 3:
-        const wens = [...wensVal, []]
+        const wens = [...wensVal, [{ startTime: null, endTime: null }]]
         setWensVal(wens)
         break;
       case 4:
-        const thurs = [...thursVal, []]
+        const thurs = [...thursVal, [{ startTime: null, endTime: null }]]
         setThursVal(thurs)
         break;
       case 5:
-        const fri = [...friVal, []]
+        const fri = [...friVal, [{ startTime: null, endTime: null }]]
         setFriVal(fri)
         break;
       case 6:
-        const satur = [...saturVal, []]
+        const satur = [...saturVal, [{ startTime: null, endTime: null }]]
         setSaturVal(satur)
     }
 
   }
 
-  
+
 
 
 
@@ -320,15 +370,43 @@ const Home = () => {
             <div className="mt-6  ">
               <dl className="divide-y divide-gray-200">
                 <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+
                   <dt className="text-sm font-medium text-gray-500">Name</dt>
+
+
+
                   <dd className="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                    <span className="flex-grow">Chelsea Hagon</span>
+                    {!updateProfile.firstName ?
+                      <span className="flex-grow">Chelsea Hagon</span>
+                      :
+                      <div className="relative">
+                        <label
+                          htmlFor="name"
+                          className="absolute -top-2 left-2 inline-block bg-white px-1 text-xs font-medium text-gray-900"
+                        >
+                          
+                        </label>
+                        <input
+                          type="text"
+                          name="firstName"
+                          id="name"
+                          className="block px-2 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                          placeholder="Jane Smith"
+                        />
+                      </div>
+                    }
                     <span className="ml-4 flex-shrink-0">
                       <button
                         type="button"
                         className="rounded-md bg-white font-medium text-[#25705a] hover:text-purple-500  "
+                        onClick={() => setUpdateProfile(prevState => {
+                          return {
+                            ...prevState,
+                            firstName: true
+                          }
+                        })}
                       >
-                        Update
+                        Update 
                       </button>
                     </span>
                   </dd>
@@ -432,14 +510,22 @@ const Home = () => {
                     {dia === index ? <DialogCom open={open} onClose={() => setOpen(false)} >
                       <h1>{dia}</h1>
                       {dia === index ? <form className="relative mt-4 flex gap-4" onSubmit={handleSubmit}>
-                        <span 
-                          onClick={() => {handleAdd(index)}}
+                        <span
+                          onClick={() => {
+                            handleAdd(index)
+
+                          }}
                           className="inline-flex items-center rounded-full bg-green-100 px-1.5 py-0.5 text-xs font-medium text-green-700">
                           Add period
                         </span>
 
                         <button type='button' onClick={(e) => {
-                          handleSubmit(e)
+                          let x = 1
+                          for (let index = 0; index < x; index++) {
+
+                            handleSubmit(e)
+
+                          }
                         }}>submit {dia}</button>
 
 
