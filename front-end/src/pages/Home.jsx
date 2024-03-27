@@ -7,13 +7,14 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
-import { ChatBubbleBottomCenterTextIcon, PaperClipIcon, PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/20/solid'
+import { ChatBubbleBottomCenterTextIcon, PaperClipIcon, PencilIcon, TrashIcon, PlusIcon, ExclamationCircleIcon, EllipsisVerticalIcon } from '@heroicons/react/20/solid'
 import dayjs from 'dayjs';
 import { AddDoctor } from '../API/doctor';
 import { ShowlLoader } from '../redux/loaderSlice';
 import { useDispatch } from 'react-redux';
 import Button from '../components/Button';
 import { UpateUser } from '../API/users';
+import Etable from '../components/Etable';
 
 
 
@@ -360,129 +361,88 @@ const Home = () => {
 
         </UserView>
         :
-        <div className='flex flex-row w-full flex-wrap   '>
+        <div className='flex flex-col w-full flex-wrap   '>
           <div className="mt-10 divide-y divide-gray-200  
-           w-2/6 md:w-3/6 max-md:w-full  bg-white/90 p-4  ">
+           w-2/6 md:w-full max-md:w-full  bg-white/90 py-4  ">
             <div className="space-y-1">
               <h3 className="text-lg font-medium leading-6 text-gray-900">Profile</h3>
+            </div>
+
+            <div className="flex flex-col ">
+
+              <div className="flex w-full justify-start gap-1 flex-wrap mt-2">
+                <div className="rounded-md px-3 pb-1.5 pt-2.5 shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-indigo-600  w-[300px] ">
+                  <label htmlFor="name" className="block text-xs font-medium text-gray-900">
+                    First Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    id="name"
+                    className="block w-full border-0 p-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 outline-none"
+                    placeholder="e.g Yousef"
+                  />
+                </div>
+                <div className="rounded-md px-3 pb-1.5 pt-2.5 shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-indigo-600 w-[300px] ">
+                  <label htmlFor="name" className="block text-xs font-medium text-gray-900">
+                    Last Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    id="name"
+                    className="block w-full border-0 p-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 outline-none"
+                    placeholder="e.g AlSueaileh"
+                  />
+                </div>
+                <div className="rounded-md px-3 pb-1.5 pt-2.5 shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-indigo-600 w-[300px]  ">
+                  <label htmlFor="name" className="block text-xs font-medium text-gray-900">
+                    Office No
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    id="name"
+                    className="block w-full border-0 p-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 outline-none"
+                    placeholder="e.g 2000"
+                  />
+                </div>
+                <div className="flex ml-auto items-center gap-2">
+                  <div>
+                    <button
+                      type="button"
+                      className="rounded-md bg-[#ffffffa8] px-3 py-2 text-sm font-semibold text-[#0b5a4dcc] shadow-sm hover:bg-white/20"
+                    >
+                      Change avatar
+                    </button>
+
+                  </div>
+
+                  <span className="inline-block h-14 w-14 overflow-hidden rounded-full bg-gray-100">
+                    <svg className="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  </span>
+
+                </div>
+              </div>
+
 
             </div>
-            <div className="mt-6  ">
-              <dl className="divide-y divide-gray-200">
-                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
 
-                  <dt className="text-sm font-medium text-gray-500">Name</dt>
-
-
-
-                  <dd className="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                    {!updateProfile.firstName ?
-                      <span className="flex-grow">Chelsea Hagon</span>
-                      :
-                      <div className="relative">
-                        <label
-                          htmlFor="name"
-                          className="absolute -top-2 left-2 inline-block bg-white px-1 text-xs font-medium text-gray-900"
-                        >
-                          
-                        </label>
-                        <input
-                          type="text"
-                          name="firstName"
-                          id="name"
-                          className="block px-2 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                          placeholder="Jane Smith"
-                        />
-                      </div>
-                    }
-                    <span className="ml-4 flex-shrink-0">
-                      <button
-                        type="button"
-                        className="rounded-md bg-white font-medium text-[#25705a] hover:text-purple-500  "
-                        onClick={() => setUpdateProfile(prevState => {
-                          return {
-                            ...prevState,
-                            firstName: true
-                          }
-                        })}
-                      >
-                        Update 
-                      </button>
-                    </span>
-                  </dd>
-                </div>
-                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:pt-5">
-                  <dt className="text-sm font-medium text-gray-500">Photo</dt>
-                  <dd className="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                    <span className="flex-grow">
-                      <img
-                        className="h-8 w-8 rounded-full"
-                        src="https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                        alt=""
-                      />
-                    </span>
-                    <span className="ml-4 flex flex-shrink-0 items-start space-x-4">
-                      <button
-                        type="button"
-                        className="rounded-md bg-white font-medium text-[#25705a] hover:text-purple-500  "
-                      >
-                        Update
-                      </button>
-                      <span className="text-gray-300" aria-hidden="true">
-                        |
-                      </span>
-                      <button
-                        type="button"
-                        className="rounded-md bg-white font-medium text-[#702535] hover:text-purple-500  "
-                      >
-                        Remove
-                      </button>
-                    </span>
-                  </dd>
-                </div>
-                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:pt-5">
-                  <dt className="text-sm font-medium text-gray-500">Email</dt>
-                  <dd className="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                    <span className="flex-grow">chelsea.hagon@example.com</span>
-                    <span className="ml-4 flex-shrink-0">
-                      <button
-                        type="button"
-                        className="rounded-md bg-white font-medium text-[#25705a] hover:text-purple-500  "
-                      >
-                        Update
-                      </button>
-                    </span>
-                  </dd>
-                </div>
-                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:border-b sm:border-gray-200 sm:py-5">
-                  <dt className="text-sm font-medium text-gray-500">Job title</dt>
-                  <dd className="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                    <span className="flex-grow">Human Resources Manager</span>
-                    <span className="ml-4 flex-shrink-0">
-                      <button
-                        type="button"
-                        className="rounded-md bg-white font-medium text-[#25705a] hover:text-purple-500  "
-                      >
-                        Update
-                      </button>
-                    </span>
-                  </dd>
-                </div>
-              </dl>
-            </div>
           </div>
           <div className="mt-10 divide-y divide-gray-200 
-          w-2/6 md:w-3/6 max-md:w-full bg-slate-50 p-4">
+            p-4">
             <div className="space-y-1">
               <h3 className="text-lg font-medium leading-6 text-gray-900"> Office hours</h3>
 
             </div>
             <div className="mt-6">
 
-              <div className='flex flex-col  justify-center flex-wrap '>
+              <div className='mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4'>
                 {daysOfWeek.map((day, index) => (
                   <div key={day.title} className='flex items-center '>
-                    <div className="flex items-center m-2 justify-between w-[120px  " key={day.key}>
+                    {/* <div className="flex items-center m-2 justify-between w-[120px  " key={day.key}>
                       <input
                         id={day.shortcut}
                         type="checkbox"
@@ -495,10 +455,42 @@ const Home = () => {
                       />
                       <label htmlFor={day.shortcut} className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{day.title}</label>
 
-                    </div>
+                    </div> */}
+
+                    <li key={day.key} className="col-span-1 cursor-pointer flex rounded-md shadow-sm"
+                      onClick={() => {
+                        setOpen(true)
+                        setDia(index)
+
+                      }}
+                    >
+                      <div
+                        className={`${day.bgColor}  flex  w-16 flex-shrink-0 items-center justify-center rounded-l-md text-sm font-medium text-white`}
+
+                      >
+                        {day.initials}
+                      </div>
+                      <div className="flex flex-1 items-center justify-between truncate rounded-r-md border-b border-r border-t border-gray-200 bg-white">
+                        <div className="flex-1 truncate px-4 py-2 text-sm">
+                          <a  className="font-medium text-gray-900 hover:text-gray-600">
+                            {day.title}
+                          </a>
+                          <p className="text-gray-500">17 Members</p>
+                        </div>
+                        <div className="flex-shrink-0 pr-2">
+                          <button
+                            type="button"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                          >
+                            <span className="sr-only">Open options</span>
+                            <EllipsisVerticalIcon className="h-5 w-5" aria-hidden="true" />
+                          </button>
+                        </div>
+                      </div>
+                    </li>
 
 
-                    <span
+                    {/* <span
 
                       onClick={() => {
                         setOpen(true)
@@ -506,7 +498,7 @@ const Home = () => {
 
                       }} className={` ${!isChecked[index] ? "ml-auto bg-[#ff010180] text-[#ffffff] pointer-events-none" : ""} inline-flex ml-auto cursor-pointer items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20`}>
                       Edit
-                    </span>
+                    </span> */}
                     {dia === index ? <DialogCom open={open} onClose={() => setOpen(false)} >
                       <h1>{dia}</h1>
                       {dia === index ? <form className="relative mt-4 flex gap-4" onSubmit={handleSubmit}>
@@ -914,12 +906,14 @@ const Home = () => {
             </div>
           </div>
           <div className="mt-10 divide-y divide-gray-200 
-          w-2/6 md:w-3/6 max-md:w-full bg-slate-50 p-4">
+           bg-slate-50 p-4">
             <div className="space-y-1">
               <h3 className="text-lg font-medium leading-6 text-gray-900"> Office hours</h3>
 
             </div>
             <div className="mt-6">
+              <Etable/>
+
 
             </div>
           </div>

@@ -27,7 +27,7 @@ const ProtectedRoute = ({ children }) => {
             </div>
 
 
-            <div className='mt-10 font-montserrat'>
+            <div className='mt-2 font-montserrat'>
                 {children}
             </div>
         </div>
