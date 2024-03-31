@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useState, useEffect } from 'react'
 import {
     ChevronDownIcon,
     ChevronLeftIcon,
@@ -8,14 +8,21 @@ import {
     EllipsisVerticalIcon
 } from '@heroicons/react/20/solid'
 import { Menu, Transition } from '@headlessui/react'
-import { add, eachDayOfInterval, endOfMonth, endOfWeek, format, getDay, isEqual, isFirstDayOfMonth, isSameDay, isSameMonth, isToday, parse, parseISO, startOfMonth, startOfToday, startOfWeek } from 'date-fns'
+import { add, eachDayOfInterval, endOfMonth, endOfWeek, format, getDay, isEqual, isFirstDayOfMonth, isSameDay, isSameMonth, isToday, parse, parseISO, set, startOfMonth, startOfToday, startOfWeek } from 'date-fns'
+import { GetDoctorAppointments, UpdateAppointmentsStatus } from '../API/appointments'
+import DialogCom from './DialogCom'
+import { FcTimeline } from "react-icons/fc";
 
 
 
-let events = [
-    { id: 1, name: 'Design review', time: '10AM', datetime: '2024-03-27T10:00', href: '#' },
-    { id: 2, name: 'Sales meeting', time: '2PM', datetime: '2022-01-03T14:00', href: '#' },
-]
+
+
+
+
+
+
+
+
 
 // const selectedDay1 = days.find((day) => day.isSelected)
 
@@ -23,18 +30,155 @@ function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
+let events = [
+    { id: 1, name: 'Design review', time: '10AM', datetime: '2024-03-27T10:00', href: '#' },
+    { id: 2, name: 'Design Metting', time: '10AM', datetime: '2024-03-27T10:00', href: '#' },
+    { id: 3, name: 'Design Metting', time: '10AM', datetime: '2024-03-27T10:00', href: '#' },
+    { id: 4, name: 'Sales meeting', time: '2PM', datetime: '2024-03-28T14:00', href: '#' },
+]
+
 export default function Etable() {
     let today = startOfToday()
     const [selectedDay, setSelectedDay] = useState(today)
     const [cureentMonth, setCureentMonth] = useState(format(today, "MMM-yyyy"))
+    const [appointments, setAppointments] = useState([])
+    const [status, setStatus] = useState("")
+    const [selectedEvent, setSelectedEvent] = useState(null)
+    const [open, setOpen] = useState(false)
+
+    // const [hasMoreThan2events, setHasMoreThan2events ] = useState(false)
+    let hasMoreThan2events = false
     let firstDayOfCurrentMonth = parse(cureentMonth, 'MMM-yyyy', new Date())
-    console.log(cureentMonth);
-    console.log(selectedDay);
-    console.log(format(selectedDay, 'yyyy-MM-dd'));
-    console.log(format(events[0].datetime, 'yyyy-MM-dd'));
-    console.log(events.filter(event => isSameDay(format(selectedDay, 'yyyy-MM-dd'), format(event.datetime, 'yyyy-MM-dd'))));
+    // console.log(cureentMonth);
+    // console.log(firstDayOfCurrentMonth);
+    // console.log(cureentMonth);
+    // console.log(selectedDay);
+    // console.log(format(selectedDay, 'yyyy-MM-dd'));
+    // console.log(events.filter(event => isSameDay(format(selectedDay, 'yyyy-MM-dd'), format(event.datetime, 'yyyy-MM-dd'))));
     let days = eachDayOfInterval({ start: startOfWeek(firstDayOfCurrentMonth), end: endOfWeek(endOfMonth(firstDayOfCurrentMonth)) })
-    console.log(days);
+    // console.log(days);
+    // console.log(days[1]);
+    // console.log(parse(days, 'MMM-yyyy', new Date()));
+    let selectedDayEventsNum = events.filter(event => isSameDay(format(selectedDay, 'yyyy-MM-dd'), format(event.datetime, 'yyyy-MM-dd'))).length
+    // console.log(selectedDayEventsNum);
+
+
+
+
+    let uniqueArray = [...new Set(days)]
+    let daysEvents = []
+    uniqueArray.forEach(element => {
+        daysEvents.push({
+            day: element,
+            events: appointments.filter(event => format(event.date, 'yyyy-MM-dd') === format(element, 'yyyy-MM-dd'))
+
+
+        })
+    })
+
+    const GetDocAppointments = async () => {
+        // code here
+        const user = JSON.parse(localStorage.getItem("user"))
+        console.log(user);
+
+        const response = await GetDoctorAppointments(user.id)
+        console.log(response);
+        if (response.success) {
+            setAppointments(response.data)
+        }
+
+    }
+
+
+    // console.log(daysEvents);
+    // console.log(daysEvents.find(event => isSameDay(format(selectedDay, 'yyyy-MM-dd'), format(event.day, 'yyyy-MM-dd'))));
+    let todayEvents = daysEvents.find(event => isSameDay(format(selectedDay, 'yyyy-MM-dd'), format(event.day, 'yyyy-MM-dd'))) && daysEvents.find(event => isSameDay(format(selectedDay, 'yyyy-MM-dd'), format(event.day, 'yyyy-MM-dd'))).events
+    // console.log(todayEvents);
+    console.log(appointments);
+    console.log(daysEvents);
+    console.log(todayEvents);
+
+    const statuses = {
+        approved: 'text-green-600 ',
+        pending: 'text-yellow-600 ',
+        canceled: 'text-red-600 ',
+    }
+    function classNames(...classes) {
+        return classes.filter(Boolean).join(' ')
+    }
+
+    const changeStatus = async (id, status) => {
+
+        setStatus(status.status)
+        try {
+            const response = await UpdateAppointmentsStatus(id, status)
+            if (response.success) {
+                message.success(response.message)
+
+            } else {
+                throw new Error(response.message)
+            }
+        } catch (error) {
+            message.error(error.message)
+        }
+    }
+
+
+
+    function buttonType(status, id) {
+        switch (status) {
+            case "pending":
+                // code block
+                return (
+                    <div className='flex justify-center gap-2 items-center'>
+                        <button
+                            onClick={() => {
+                                changeStatus(id, "approved")
+                            }}
+                            type="button"
+                            className="inline-flex items-center gap-x-1.5 rounded-md bg-green-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 w-[80px] justify-center "
+                        >
+
+                            Approve
+                        </button>
+                        <button
+                            onClick={() => {
+                                changeStatus(id, "canceled")
+                            }}
+                            type="button"
+                            className="inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 w-[80px] justify-center "
+                        >
+
+                            Cancel
+                        </button>
+                    </div>
+                )
+                break;
+            case "approved":
+                return (
+                    <div>
+
+                        <button
+                            onClick={() => {
+                                changeStatus(id, "canceled")
+                            }}
+                            type="button"
+                            className="inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 w-[80px] justify-center "
+                        >
+
+                            Cancel
+                        </button>
+                    </div>
+                )
+                break;
+            default:
+            // code block
+        }
+    }
+    useEffect(() => {
+        GetDocAppointments()
+    }, [status])
+
     return (
         <div className="lg:flex lg:h-full lg:flex-col">
             <header className="flex items-center justify-between border-b border-gray-200 px-6 py-4 lg:flex-none">
@@ -154,17 +298,38 @@ export default function Etable() {
                                                 </a>
                                             )}
                                         </Menu.Item>
+
+
                                     </div>
                                 </Menu.Items>
                             </Transition>
                         </Menu>
-                        <div className="ml-6 h-6 w-px bg-gray-300" />
-                        <button
+                        <div className="ml-6 h-6 w-px bg-gray-300 " />
+                        {/* <button
                             type="button"
                             className="ml-6 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                         >
                             Add event
-                        </button>
+                        </button> */}
+
+                        <span className="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium   ml-2 text-red-600">
+                            <svg className="h-1.5 w-1.5 fill-red-400" viewBox="0 0 6 6" aria-hidden="true">
+                                <circle cx={3} cy={3} r={3} />
+                            </svg>
+                            Cnceled
+                        </span>
+                        <span className="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium  ml-2 text-yellow-600">
+                            <svg className="h-1.5 w-1.5 fill-yellow-400" viewBox="0 0 6 6" aria-hidden="true">
+                                <circle cx={3} cy={3} r={3} />
+                            </svg>
+                            Pending
+                        </span>
+                        <span className="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium text-green-600  ml-2">
+                            <svg className="h-1.5 w-1.5 fill-green-400" viewBox="0 0 6 6" aria-hidden="true">
+                                <circle cx={3} cy={3} r={3} />
+                            </svg>
+                            Approved
+                        </span>
                     </div>
                     <Menu as="div" className="relative ml-6 md:hidden">
                         <Menu.Button className="-mx-2 flex items-center rounded-full border border-transparent p-2 text-gray-400 hover:text-gray-500">
@@ -300,179 +465,235 @@ export default function Etable() {
                 {/* distrubtion montly days */}
                 <div className="flex bg-gray-200 text-xs leading-6 text-gray-700 lg:flex-auto">
                     {/* lg screen */}
-                    <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px">
-                        {days.map((day, dayIdx) => (
+                    <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px ">
+                        {daysEvents.map((dia, dayIdx) => (
                             <div
-                                key={day.toString()}
-                                onClick={() => { setSelectedDay(day) }}
+                                key={dia.day.toString()}
+                                onClick={() => {
+                                    {
+                                        setSelectedDay(dia.day)
+                                        console.log(dia.events);
+                                    }
+                                }}
 
                                 type="button"
                                 className={classNames(
 
-                                    dayIdx === 0 && colStartClasses[getDay(day)],
-                                    isSameMonth(day, firstDayOfCurrentMonth) ? 'bg-white' : 'bg-gray-100',
+                                    dayIdx === 0 && colStartClasses[getDay(dia.day)],
+                                    isSameMonth(dia.day, firstDayOfCurrentMonth) ? 'bg-white' : 'bg-gray-100',
 
-                                    (isEqual(day, selectedDay) ||
-                                        isToday(day)) &&
+                                    (isEqual(dia.day, selectedDay) ||
+                                        isToday(dia.day)) &&
                                     'font-semibold ',
 
-                                    isEqual(day, selectedDay) &&
+                                    isEqual(dia.day, selectedDay) &&
                                     'text-[#ffffff] font-bold  //boldtext ',
 
-                                    !isEqual(day, selectedDay) &&
-                                    isToday(day) &&
+                                    !isEqual(dia.day, selectedDay) &&
+                                    isToday(dia.day) &&
                                     'text-white',
 
-                                    isEqual(day, selectedDay) &&
-                                    isSameMonth(day, today) &&
-                                    !isToday(day) &&
+                                    isEqual(dia.day, selectedDay) &&
+                                    isSameMonth(dia.day, today) &&
+                                    !isToday(dia.day) &&
                                     'text-white',
 
-                                    !isEqual(day, selectedDay) &&
-                                    !isSameMonth(day, today) &&
-                                    !isToday(day) &&
+                                    !isEqual(dia.day, selectedDay) &&
+                                    !isSameMonth(dia.day, today) &&
+                                    !isToday(dia.day) &&
                                     'text-gray-800',
 
-                                    'flex h-18 flex-col-7 px-3 py-2 hover:bg-gray-100 focus:z-10 md:h-24 cursor-pointer flex-col'
+                                    'flex  flex-col-7 px-3 py-2 hover:bg-gray-100 focus:z-10  cursor-pointer flex-col min-h-[100px] '
                                 )}
-                                
+
                             >
-                                                                <time
-                                    dateTime={format(day, 'yyyy-MM-dd')}
+                                <time
+                                    dateTime={format(dia.day, 'yyyy-MM-dd')}
                                     className={classNames(
                                         selectedDay && 'flex h-6 md:h-6 w-14 items-center justify-center rounded-full  ',
-                                        isEqual(selectedDay, day) && 'bg-red-500',
-                                        selectedDay && isToday(day) && 'bg-indigo-600 text-white',
-                                        selectedDay && isToday(day) && 'bg-indigo-600',
+                                        isEqual(selectedDay, dia.day) && 'bg-red-500',
+                                        selectedDay && isToday(dia.day) && 'bg-indigo-600 text-white',
+                                        selectedDay && isToday(dia.day) && 'bg-indigo-600',
                                         'ml-auto flex flex-col   '
                                     )}
                                 >
-                                    {format(day, "d")}
+                                    {format(dia.day, "d")}
                                 </time>
 
+                                {dia.events && dia.events.length > 0 && (
+                                    <ol className="mt-2 ">
+                                        {dia.events && dia.events.map(((event, i) =>
+                                            <li key={event.id}>
 
-                                {/* needs fix */}
-                                {events.filter(event => isSameDay(format(selectedDay, 'yyyy-MM-dd'), format(event.datetime, 'yyyy-MM-dd'))).length > 0 && (
-                                    <ol className="mt-2">
-                                        {events.filter(event => isSameDay(format(selectedDay, 'yyyy-MM-dd'), format(event.datetime, 'yyyy-MM-dd'))).map(event => (
-                                            <>
-                                                {isSameDay(format(day, 'yyyy-MM-dd'), format(event.datetime, 'yyyy-MM-dd')) ? <li key={event.id}>
-                                                    <a href={event.href} className="group flex">
-                                                        <p className="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600">
-                                                            {event.name}
-                                                        </p>
-                                                        <time
-                                                            dateTime={event.datetime}
-                                                            className="ml-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block"
-                                                        >
-                                                            {event.time}
-                                                        </time>
-                                                    </a>
-                                                </li> : ""}
-                                            </>
+                                                <a href={event.href} className="group flex" onClick={() => {
+
+                                                    setOpen(true)
+                                                    setSelectedEvent(event)
+                                                    console.log(i);
+
+                                                }}>
+
+                                                    <p className={`flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600 
+                                                    ${event.status === "pending" ?
+                                                            'text-yellow-600' :
+                                                            event.status === "approved" ? "text-green-600" :
+                                                                "text-red-600"}`}>
+                                                        {event.userName}
+                                                    </p>
+
+                                                    <time
+                                                        dateTime={event.date}
+                                                        className="ml-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block"
+                                                    >
+                                                        {event.slot}
+                                                    </time>
+                                                </a>
+
+                                                { selectedEvent === event ?
+                                                    <DialogCom open={open} subText={event.slot} onClose={() => setOpen(false)} icon={<FcTimeline className="h-6 w-6 text-green-600" aria-hidden="true" />}>
+                                                        <ul role="list" className="divide-y divide-gray-100 ">
+
+                                                            {/* <li key={event.id} className="flex justify-start gap-x-6 py-5 flex-col font-montserrat">
+                                                                <div className="flex min-w-0 gap-x-4">
+                                                                    <div className="min-w-0 flex-auto flex justify-between">
+                                                                        <p className="text-sm  leading-6 text-gray-900 font-bold">Name: <span className='text-[#359764]'>{event.userName}</span></p>
+                                                                        <p className="mt-1 text-xs leading-5 text-gray-500"> way of conduction: {event.via}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="  ">
+                                                                    <p className="text-sm leading-6 text-gray-900 font-montserrat text-justify font-bold"> reason: <span className='text-gray-500'>{event.reason}</span></p>
+                                                                    
+                                                                </div>
+                                                            </li> */}
+                                                            <li key={event.id} className="flex items-center justify-between gap-x-6 py-5  flex-col-reverse">
+                                                                <div className="min-w-0 w-full">
+
+                                                                    <div className="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500 w-full">
+                                                                        <p
+                                                                            className={classNames(
+                                                                                statuses[event.status],
+                                                                                'rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-bold uppercase '
+                                                                            )}
+                                                                        >
+                                                                            {event.status}
+                                                                        </p>
+                                                                        <p className="whitespace-nowrap">
+                                                                            Due on <time dateTime={event.date}><span className='font-bold text-black'>{event.date}</span></time>
+                                                                        </p>
+                                                                        <svg viewBox="0 0 2 2" className="h-0.5 w-0.5 fill-current">
+                                                                            <circle cx={1} cy={1} r={1} />
+                                                                        </svg>
+                                                                        <p className="truncate">Way of conduction: <span className='font-bold text-black'>{event.via}</span></p>
+                                                                    </div>
+                                                                    <div className="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500 w-full">
+                                                                        <p className="truncate">Student: <span className='font-bold text-black'>{event.userName}</span></p>
+
+                                                                    </div>
+                                                                    <div className="flex items-start gap-x-3 mt-4 w-full ">
+                                                                        <p className="text-sm font-semibold leading-6 text-gray-900 text-justify  w-full p-4 bg-slate-50  rounded-md">{event.reason}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex flex-none items-center gap-x-4 mb-2">
+
+                                                                    {buttonType(event.status, event.id)}
+
+                                                                </div>
+                                                            </li>
+
+                                                        </ul>
+
+                                                    </DialogCom>
+                                                    : ""}
+
+
+                                            </li>
                                         ))}
-
+                                        {/* {dia.events.length > 2 && <li className="text-gray-500">+ {dia.events.length - 2} more</li>} */}
                                     </ol>
-                                )}
 
+                                )}
 
                             </div>
                         ))}
                     </div>
                     {/* md & sm screnns */}
                     <div className="isolate grid w-full grid-cols-7 grid-rows-6 gap-px lg:hidden">
-                        {days.map((day, dayIdx) => (
+                        {daysEvents.map((dia, dayIdx) => (
                             <button
-                                onClick={() => { setSelectedDay(day) }}
-                                key={day.toString()}
+                                onClick={() => { setSelectedDay(dia.day) }}
+                                key={dia.day.toString()}
                                 type="button"
                                 className={classNames(
 
-                                    dayIdx === 0 && colStartClasses[getDay(day)],
-                                    isSameMonth(day, firstDayOfCurrentMonth) ? 'bg-white' : 'bg-gray-100',
+                                    dayIdx === 0 && colStartClasses[getDay(dia.day)],
+                                    isSameMonth(dia.day, firstDayOfCurrentMonth) ? 'bg-white' : 'bg-gray-100',
 
-                                    (isEqual(day, selectedDay) ||
-                                        isToday(day)) &&
+                                    (isEqual(dia.day, selectedDay) ||
+                                        isToday(dia.day)) &&
                                     'font-semibold ',
 
-                                    isEqual(day, selectedDay) &&
+                                    isEqual(dia.day, selectedDay) &&
                                     'text-[#ffffff] font-bold  //boldtext ',
 
-                                    !isEqual(day, selectedDay) &&
-                                    isToday(day) &&
+                                    !isEqual(dia.day, selectedDay) &&
+                                    isToday(dia.day) &&
                                     'text-white',
 
-                                    isEqual(day, selectedDay) &&
-                                    isSameMonth(day, today) &&
-                                    !isToday(day) &&
+                                    isEqual(dia.day, selectedDay) &&
+                                    isSameMonth(dia.day, today) &&
+                                    !isToday(dia.day) &&
                                     'text-white',
 
-                                    !isEqual(day, selectedDay) &&
-                                    !isSameMonth(day, today) &&
-                                    !isToday(day) &&
+                                    !isEqual(dia.day, selectedDay) &&
+                                    !isSameMonth(dia.day, today) &&
+                                    !isToday(dia.day) &&
                                     'text-gray-800',
 
                                     'flex h-18 flex-col-7 px-3 py-2 hover:bg-gray-100 focus:z-10 md:h-24'
                                 )}
                             >
+
                                 <time
-                                    dateTime={format(day, 'yyyy-MM-dd')}
+                                    dateTime={format(dia.day, 'yyyy-MM-dd')}
                                     className={classNames(
                                         selectedDay && 'flex h-6 md:h-6 w-14 items-center justify-center rounded-full ',
-                                        isEqual(selectedDay, day) && 'bg-red-500',
-                                        selectedDay && isToday(day) && 'bg-indigo-600 text-white',
-                                        selectedDay && isToday(day) && 'bg-indigo-600',
+                                        isEqual(selectedDay, dia.day) && 'bg-red-500',
+                                        selectedDay && isToday(dia.day) && 'bg-indigo-600 text-white',
+                                        selectedDay && isToday(dia.day) && 'bg-indigo-600',
                                         'ml-auto '
                                     )}
                                 >
                                     {/* {day.date.split('-').pop().replace(/^0/, '')} */}
-                                    {format(day, "d")}
+                                    {format(dia.day, "d")}
                                 </time>
-                                {/* no need  */}
-                                {/* {events.length > 0 && (
-                                    <ol className="mt-2  ">
-                                        {events.filter(event => isSameDay(format(selectedDay, 'yyyy-MM-dd'), format(event.datetime, 'yyyy-MM-dd'))).map((event) => (
-
-
-                                            <>
-                                                {isSameDay(format(day, 'yyyy-MM-dd'), format(event.datetime, 'yyyy-MM-dd')) ?
-                                                    <li key={event.id}>
-                                                        <a href={event.href} className="group flex">
-                                                            <p className="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600">
-                                                                {event.name}
-                                                            </p>
-                                                            <time
-                                                                dateTime={event.datetime}
-                                                                className="ml-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block"
-                                                            >
-                                                                {event.time}
-                                                            </time>
-
-                                                        </a>
-                                                    </li> : ""}
-                                            </>
-
+                                <span className="sr-only">{dia.events.length} events</span>
+                                {dia.events.length > 0 && (
+                                    <span className="-mx-0.5 mt-auto flex flex-wrap-reverse">
+                                        {dia.events.map((event) => (
+                                            <span key={event.id} className="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400" />
                                         ))}
+                                    </span>
+                                )}
 
-                                    </ol>
 
-                                )} */}
 
                             </button>
+
+
                         ))}
                     </div>
                 </div>
             </div>
-            {events.filter(event => isSameDay(format(selectedDay, 'yyyy-MM-dd'), format(event.datetime, 'yyyy-MM-dd'))).length > 0 && (
+            {daysEvents.filter(event => isSameDay(format(selectedDay, 'yyyy-MM-dd'), format(event.day, 'yyyy-MM-dd'))).length > 0 && (
                 <div className="px-4 py-10 sm:px-6 lg:hidden">
                     <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow ring-1 ring-black ring-opacity-5">
-                        {events.filter(event => isSameDay(format(selectedDay, 'yyyy-MM-dd'), format(event.datetime, 'yyyy-MM-dd'))).map((event) => (
+                        {todayEvents.map(event => (
                             <li key={event.id} className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50">
                                 <div className="flex-auto">
-                                    <p className="font-semibold text-gray-900">{event.name}</p>
-                                    <time dateTime={event.datetime} className="mt-2 flex items-center text-gray-700">
+                                    <p className="font-semibold text-gray-900">"{event.reason}" by <span className='text-[#9c8f42]'> {event.userName}</span>  </p>
+                                    <time dateTime={event.date} className="mt-2 flex items-center text-gray-700">
                                         <ClockIcon className="mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-                                        {event.time}
+                                        {event.slot}
                                     </time>
                                 </div>
                                 <a
@@ -486,6 +707,7 @@ export default function Etable() {
                     </ol>
                 </div>
             )}
+
         </div>
     )
 }

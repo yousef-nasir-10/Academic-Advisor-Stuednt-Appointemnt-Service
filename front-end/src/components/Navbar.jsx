@@ -2,6 +2,7 @@ import React from 'react'
 import { RiShieldUserLine } from "react-icons/ri";
 import { IoLogOut } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
+import logo from '../assets/logo.png'
 
 
 const Navbar = () => {
@@ -9,9 +10,11 @@ const Navbar = () => {
     const navigate = useNavigate()
     return (
         <nav className='p-4 justify-between font-montserrat flex    '>
-            <div className='max-xl:w-3/6'><h1 className='text-xl font-extrabold primary max-md:text-sm cursor-pointer' onClick={() => {
+            <div className='max-xl:w-3/6'>
+                <img src={logo} className='text-xl font-extrabold primary max-md:text-sm cursor-pointer  w-[150px]' onClick={() => {
                 navigate("/")
-            }} >Booking Appoitemnt</h1></div>
+            }} />
+            </div>
             {user &&
                 <div className='flex justify-between items-center gap-6 max-md:3/6 max-md:flex-col max-md:gap-2 max-md:items-start '>
                     <div className='flex items-center cursor-pointer' onClick={() => {

@@ -1,5 +1,6 @@
-import { addDoc, collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore"
+import { addDoc, collection, doc, getDoc, getDocs, query, refEqual, setDoc, updateDoc, where } from "firebase/firestore"
 import firestoreDatabase from "../firebaseConfig"
+
 export const AddDoctor = async (payload) => {
     try {
         await setDoc(doc(firestoreDatabase, "doctors", payload.userId), payload)
@@ -67,7 +68,7 @@ export const GetAllDoctors = async () => {
     }
 }
 
-export const UpateDoctor = async (payload) => {
+export const UpdateDoctor = async (payload) => {
     try {
         await setDoc(doc(firestoreDatabase, "doctors", payload.id), payload)
         return{
@@ -99,4 +100,56 @@ export const GetDoctorById = async (id) => {
         return error
 
     }
+}
+
+export const UpdateAvtar = async (url ,id) => {
+    try {
+        await updateDoc(doc(firestoreDatabase, "doctors", id), {
+            imgProfile: url
+        })
+        return {
+            success: true,
+            message: "Image Profile updated successfully"
+        }
+    } catch (error) {
+        return {
+            success: false,
+            message: error.message
+        }
+    }
+    
+}
+
+export const UpdateProfile = async (paylod ,id) => {
+    try {
+        await updateDoc(doc(firestoreDatabase, "doctors", id), paylod)
+        return {
+            success: true,
+            message: "Profile updated successfully"
+        }
+    } catch (error) {
+        return {
+            success: false,
+            message: error.message
+        }
+    }
+    
+}
+
+export const UpdateDaySlots = async (paylod ,id) => {
+    try {
+        await updateDoc(doc(firestoreDatabase, "doctors", id), {
+            days: paylod
+        })
+        return {
+            success: true,
+            message: "Office hours updated successfully"
+        }
+    } catch (error) {
+        return {
+            success: false,
+            message: error.message
+        }
+    }
+    
 }

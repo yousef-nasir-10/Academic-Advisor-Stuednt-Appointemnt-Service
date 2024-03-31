@@ -112,7 +112,22 @@ const UserView = () => {
       console.log(user);
       const response = await GetDoctorById(user.advisedBy)
       if (response.success) {
-        console.log(response);
+        console.log(response.data.days[0].slots);
+        let sunSlots = response.data.days[0].slots
+        let days = response.data.days
+        days.forEach((day, i) => {
+          day.slots.forEach(slot => {
+            if (slot.enabled) {
+              console.log( i,day.day,slot);
+              
+            }
+          });
+        });
+
+
+        if (!response.data.days[0].slots.includes({enabled:true})) {
+          console.log("here");
+        }
         setDoctor(response.data)
 
       } else {
@@ -125,12 +140,48 @@ const UserView = () => {
 
   const getSloatData = () => {
     const day = moment(date).format("dddd")
-    if (!doctor.days.includes(day)) {
-      return <h3>Doctor is not available on {moment(date).format("YYYY-MM-DD")}</h3>
-    }
+    console.log(day);
+    let days = doctor.days
+    let slts = []
+    let m = false
+    console.log(days);
+    days.forEach((day1, i) => {
+      day1.slots.forEach(slot => {
+        
+        if (slot.enabled) {
+          // console.log( i,day1.day,slot);
+          // console.log(day1);
+          if (day == day1.day) {
+            console.log(day1.slots.startTime);
+            console.log(moment(slot.startTime, "DD")._i );
+            slts.push(slot)
+            
+          }
+        }else{
+          if (day == day1.day) {
+            console.log("here");
+            m = true
+
+            
+          }
+
+        }
+      });
+    });
+
+    console.log(slts);
+    // if (!doctor.days.includes(day)) {
+    //   return <h3>Doctor is not available on {moment(date).format("YYYY-MM-DD")}</h3>
+    // }
+
+  if(m){
+    return <h3>Doctor is not available on {moment(date).format("YYYY-MM-DD")}</h3>
+
+  }
 
     let startTime = moment(doctor.startTime, "hh:mm A")
     let endTime = moment(doctor.endTime, "hh:mm A")
+    console.log(doctor);
 
     let sloatDuration = 30 // in minutes 
     const slots = []
@@ -139,23 +190,34 @@ const UserView = () => {
 
 
 
-    while (startTime < endTime) {
-      // if (bookedSloats?.find((slot) => slot.slot === startTime.format("HH:mm"))) {
-      //     booked.push(startTime.format("HH:mm"))
+    // while (startTime < endTime) {
+    //   // if (bookedSloats?.find((slot) => slot.slot === startTime.format("HH:mm"))) {
+    //   //     booked.push(startTime.format("HH:mm"))
 
-      // }
-      // if (!bookedSloats?.find((slot) => slot.slot === startTime.format("HH:mm"))) {
-      //     slots.push(startTime.format("HH:mm"))
+    //   // }
+    //   // if (!bookedSloats?.find((slot) => slot.slot === startTime.format("HH:mm"))) {
+    //   //     slots.push(startTime.format("HH:mm"))
 
-      // }
-      slots.push(startTime.format("hh:mm A "))
-
-
-      startTime.add(sloatDuration, "minutes")
-    }
+    //   // }
+    //   slots.push(startTime.format("hh:mm A "))
 
 
-    console.log(a);
+    //   startTime.add(sloatDuration, "minutes")
+    // }
+    slts.forEach(element => {
+      while (element.startTime < element.endTime) {
+        
+        // slots.push(element.startTime.format("hh:mm A "))
+        
+        
+        // element.startTime.add(sloatDuration, "minutes")
+      }
+    });
+
+
+
+
+    console.log(slots);
 
     return (
       <>

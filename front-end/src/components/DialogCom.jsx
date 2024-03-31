@@ -4,8 +4,9 @@ import { Dialog, Transition } from '@headlessui/react'
 import { CheckIcon } from '@heroicons/react/24/outline'
 import { MdSchedule } from "react-icons/md";
 
-function DialogCom({ open, onClose, children }) {
+function DialogCom({ open, onClose, mainText ,subText, icon, children }) {
   const cancelButtonRef = useRef(null)
+  
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog as="div" className="relative z-10 " initialFocus={cancelButtonRef} onClose={onClose}>
@@ -32,23 +33,26 @@ function DialogCom({ open, onClose, children }) {
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6  ">
+              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-2 pt-2 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6  ">
                 <div className=' '>
                   <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                    <MdSchedule className="h-6 w-6 text-green-600" aria-hidden="true" />
+                    {/* <MdSchedule className="h-6 w-6 text-green-600" aria-hidden="true" /> */}
+                    {icon}
                   </div>
-                  <div className="mt-3 text-center sm:mt-5">
+                  <div className="mt-2 text-center sm:mt-2">
                     <Dialog.Title as="h3" className="text-base font-semibold leading-6 text-gray-900">
-                      Schedule your sesstion with Dr. mustafa
+                      {mainText}
+                      {/* Schedule your sesstion with Dr. mustafa */}
                     </Dialog.Title>
                     <div className="mt-2">
                       <p className="text-sm text-gray-500">
-                        Remeber being on time increase your benfetits from sessions. 
+                        {subText}
+                        {/* Remeber being on time increase your benfetits from sessions.  */}
                       </p>
                     </div>
                   </div>
                 </div>
-                <div className="mt-5 sm:mt-6 ">
+                <div className="mt-2 sm:mt-2 ">
                   {children}
 
                 </div>

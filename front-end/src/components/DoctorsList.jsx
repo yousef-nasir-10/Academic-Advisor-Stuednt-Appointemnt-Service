@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { GetAllDoctors, UpateDoctor } from '../API/doctor'
+import { GetAllDoctors, UpdateDoctor } from '../API/doctor'
 import { Table, message } from 'antd'
 import { doctorColumns } from '../constants'
 
@@ -83,7 +83,7 @@ const DoctorsList = () => {
 
         setStatus(status.status)
         try {
-            const response = await UpateDoctor(status)
+            const response = await UpdateDoctor(status)
             if (response.success) {
                 message.success(response.message)
                 
