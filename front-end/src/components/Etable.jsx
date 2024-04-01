@@ -14,6 +14,7 @@ import DialogCom from './DialogCom'
 import { FcTimeline } from "react-icons/fc";
 import dayjs from 'dayjs'
 import moment from 'moment'
+import ExportToExcel from './ExportToExcel'
 
 
 
@@ -226,6 +227,7 @@ export default function Etable() {
                 <h1 className="text-base font-semibold leading-6 text-gray-900">
                     <time dateTime="2022-01">{format(firstDayOfCurrentMonth, 'MMMM yyyy')}</time>
                 </h1>
+
                 <div className="flex items-center">
                     {/* next & previous month buttons */}
                     <div className="relative flex items-center rounded-md bg-white shadow-sm md:items-stretch">
@@ -264,7 +266,10 @@ export default function Etable() {
                             <span className="sr-only">Next month</span>
                             <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
                         </button>
+                        
                     </div>
+
+                    
                     {/* menus */}
                     <div className="hidden md:ml-4 md:flex md:items-center">
                         <Menu as="div" className="relative">

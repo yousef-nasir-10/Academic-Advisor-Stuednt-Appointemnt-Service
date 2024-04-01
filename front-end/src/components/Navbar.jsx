@@ -23,6 +23,7 @@ const Navbar = () => {
                         <RiShieldUserLine className='text-xl mr-2' />
                         <h1 className='uppercase text-xl font-semibold  max-md:text-sm '>{user.username}
                         </h1>
+                       
                     </div>
                     <IoLogOut className='ml-8 text-2xl cursor-pointer max-md:ml-0 max-md:self-end' onClick={() => {
                        localStorage.removeItem("user")

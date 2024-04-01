@@ -19,6 +19,7 @@ import Etable from '../components/Etable';
 import { message } from 'antd';
 import { ref, getStorage, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { GetDoctorAppointments } from '../API/appointments';
+import ExportToExcel from './ExportToExcel';
 
 const storage = getStorage();
 function AdvisorView() {
@@ -45,6 +46,7 @@ function AdvisorView() {
     const [startAt, setStartAt] = useState(null)
     const [startAtArray, setStartAtArray] = useState([[], [], [], [], [], [], []])
     const [endAtArray, SetendAtArray] = useState([[], [], [], [], [], [], []])
+    const [appointments, setAppointments] = useState([])
 
     console.log(sunVal);
 
@@ -365,7 +367,7 @@ function AdvisorView() {
 
     function numberOfperiods(i) {
         try {
-            
+
             switch (i) {
                 case 0:
                     let SunPeriods = 0
@@ -375,7 +377,7 @@ function AdvisorView() {
                         }
                     });
                     return (<h1> {SunPeriods} Period/s added for this day</h1>)
-    
+
                     break;
                 case 1:
                     let MonPeriods = 0
@@ -432,7 +434,7 @@ function AdvisorView() {
                     return (<h1> {saturPeriods} Period/s added for this day</h1>)
             }
         } catch (error) {
-            
+
         }
 
 
@@ -549,13 +551,32 @@ function AdvisorView() {
 
     }, [])
 
+    const GetDocAppointments = async () => {
+        // code here
+        const user = JSON.parse(localStorage.getItem("user"))
+        console.log(user);
+
+        const response = await GetDoctorAppointments(user.id)
+        console.log(response.data);
+        let m = dayjs(`${response.data[0].date} ${response.data[0].slot} `).isBefore(new Date())
+        console.log(m);
+        if (response.success) {
+            setAppointments(response.data)
+        }
+
+    }
+
+    useEffect(() => {
+        GetDocAppointments()
+    })
+
 
 
 
 
 
     console.log(url);
-    
+
 
 
 
@@ -1410,8 +1431,12 @@ function AdvisorView() {
                 </div>
                 <div className="mt-10 divide-y divide-gray-200 
             p-4">
-                    <div className="space-y-1">
+                    <div className="space-y-1 flex justify-ce items-center gap-4">
                         <h3 className="text-lg font-medium leading-6 text-gray-900"> Sesstions</h3>
+                        <div>
+                            {/* here code */}
+                            <ExportToExcel csvData={appointments} fileName={"sessions"} />
+                        </div>
                     </div>
                     <div className="mt-6">
                         <Etable />
