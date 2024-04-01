@@ -118,3 +118,22 @@ export const UpdateAppointmentsStatus = async (id, status) => {
         }
     }
 }
+
+export const UpdateAppointmentsIsBefore = async (id) => {
+    try {
+        
+        
+        await updateDoc(doc(firestoreDatabase, "appointments", id),{
+            isBefore: true
+        })
+        return {
+            success: true,
+            message: "M"
+        }
+    } catch (error) {
+        return {
+            success: false,
+            message: error.message
+        }
+    }
+}

@@ -11,6 +11,7 @@ import moment from 'moment';
 import { Box, sliderClasses } from '@mui/material'
 import { BookAppointment, GetDoctorAppointments, GetDoctorAppointmentsOnDate, GetUserAppointments, UpdateAppointmentsStatus } from '../API/appointments'
 import dayjs from 'dayjs'
+import { isAfter, isBefore, isSameDay } from 'date-fns'
 
 
 const UserView = () => {
@@ -80,7 +81,7 @@ const UserView = () => {
       if (response.success) {
         const pending = response.data.filter(sesstion => sesstion.status === "pending")
         const approved = response.data.filter(sesstion => sesstion.status === "approved")
-        const canceled = response.data.filter(sesstion => sesstion.status === "cancelled")
+        const canceled = response.data.filter(sesstion => sesstion.status === "canceled")
         console.log(approved);
         setSesstion({
           pending,
@@ -112,20 +113,21 @@ const UserView = () => {
       console.log(user);
       const response = await GetDoctorById(user.advisedBy)
       if (response.success) {
+        console.log(response.data);
         console.log(response.data.days[0].slots);
         let sunSlots = response.data.days[0].slots
         let days = response.data.days
         days.forEach((day, i) => {
           day.slots.forEach(slot => {
             if (slot.enabled) {
-              console.log( i,day.day,slot);
-              
+              console.log(i, day.day, slot);
+
             }
           });
         });
 
 
-        if (!response.data.days[0].slots.includes({enabled:true})) {
+        if (!response.data.days[0].slots.includes({ enabled: true })) {
           console.log("here");
         }
         setDoctor(response.data)
@@ -143,26 +145,28 @@ const UserView = () => {
     console.log(day);
     let days = doctor.days
     let slts = []
+    let slts1 = []
     let m = false
     console.log(days);
     days.forEach((day1, i) => {
       day1.slots.forEach(slot => {
-        
+
         if (slot.enabled) {
           // console.log( i,day1.day,slot);
           // console.log(day1);
           if (day == day1.day) {
-            console.log(day1.slots.startTime);
-            console.log(moment(slot.startTime, "DD")._i );
-            slts.push(slot)
-            
+            console.log(slot.startTime);
+            // console.log(moment(slot.startTime, "DD")._i );
+            slts.push(moment(slot.startTime, "hh:mm A").format('HH:mm'))
+            slts1.push(moment(slot.endTime, "hh:mm A").format('HH:mm '))
+
           }
-        }else{
+        } else {
           if (day == day1.day) {
             console.log("here");
-            m = true
+           
 
-            
+
           }
 
         }
@@ -170,20 +174,21 @@ const UserView = () => {
     });
 
     console.log(slts);
+    console.log(slts1);
     // if (!doctor.days.includes(day)) {
     //   return <h3>Doctor is not available on {moment(date).format("YYYY-MM-DD")}</h3>
     // }
 
-  if(m){
-    return <h3>Doctor is not available on {moment(date).format("YYYY-MM-DD")}</h3>
+    if (m) {
+      return <h3>Doctor is not available on {moment(date).format("YYYY-MM-DD")}</h3>
 
-  }
+    }
 
     let startTime = moment(doctor.startTime, "hh:mm A")
     let endTime = moment(doctor.endTime, "hh:mm A")
     console.log(doctor);
 
-    let sloatDuration = 30 // in minutes 
+    let sloatDuration = 15 // in minutes 
     const slots = []
     const booked = []
     const a = []
@@ -203,27 +208,59 @@ const UserView = () => {
 
 
     //   startTime.add(sloatDuration, "minutes")
-    // }
-    slts.forEach(element => {
-      while (element.startTime < element.endTime) {
+
+
+    slts.forEach((element, index) => {
+      console.log(index);
+      let startTime = moment(slts[index], 'hh:mm A')
+      let endTime = moment(slts1[index], 'hh:mm A')
+      let checkAginstToday = `${dayjs().format('YYYY-MM-DD hh:mm A ')}`
+      let newDate = dayjs(date).format('YYYY-MM-DD hh:mm A')
+
+      while (startTime < endTime) {
         
-        // slots.push(element.startTime.format("hh:mm A "))
+        let start = `${dayjs(startTime).format('YYYY-MM-DD hh:mm A')} `
+        console.log(start,checkAginstToday, newDate);
+
+        const result = isAfter(newDate, start)
+        let result1 = isBefore(checkAginstToday, start)
+        console.log(result);
+
         
-        
-        // element.startTime.add(sloatDuration, "minutes")
+        if (result) {
+          slots.push(startTime.format("hh:mm A "))
+        }else{
+          console.log((isSameDay(newDate, start)));
+          if((isSameDay(newDate, start))){
+            if (result1) {
+              slots.push(startTime.format("hh:mm A "))
+            }
+
+          }
+
+
+        }
+
+
+
+
+        console.log("here");
+
+
+        startTime.add(sloatDuration, "minutes")
       }
+      // dayjs(slts[index]).add(sloatDuration, "minutes")
     });
 
 
 
-
-    console.log(slots);
+    console.log(slots.length);
 
     return (
       <>
-        {slots.map((slot, index) => {
+        {slots.length> 0? slots.map((slot, index) => {
           const isBooked = bookedSloats?.find(
-            (bookedSloat) => bookedSloat.slot === slot && bookedSloat.status !== 'cancelled'
+            (bookedSloat) => bookedSloat.slot === slot && bookedSloat.status !== 'canceled'
           )
           return (
 
@@ -247,7 +284,11 @@ const UserView = () => {
 
 
           )
-        })}
+        }) :
+        
+        <p className='w-full text-red-500'>There's no sesstion.</p>
+        
+        }
 
 
       </>
@@ -282,7 +323,8 @@ const UserView = () => {
         bookedOn: dayjs().format("DD-MM-YYYY HH:mm "),
         reason: formData.reason,
         via: formData.via,
-        status: "pending"
+        status: "pending",
+        isBefore: false
       }
       const response = await BookAppointment(payload)
       if (message.success) {
@@ -300,17 +342,17 @@ const UserView = () => {
 
     setStatus(status.status)
     try {
-        const response = await UpdateAppointmentsStatus(id, status)
-        if (response.success) {
-            message.success(response.message)
-            
-        }else{
-            throw new Error(response.message)
-        }
+      const response = await UpdateAppointmentsStatus(id, status)
+      if (response.success) {
+        message.success(response.message)
+
+      } else {
+        throw new Error(response.message)
+      }
     } catch (error) {
-        message.error(error.message)
+      message.error(error.message)
     }
-}
+  }
 
   const notificationMethods = [
     { id: 'inPerson', title: 'Face to Face ', },
@@ -318,9 +360,9 @@ const UserView = () => {
     { id: 'online', title: 'Online (Zoom)' },
   ]
   const stats = [
-    { name: 'Upcoming sesstion', stat: sesstion.approved, previousStat: '70,946', change: '12%', changeType: true },
-    { name: 'Pending Sesstion', stat: sesstion.pending, previousStat: '56.14%', change: '2.02%', changeType: true },
-    { name: 'Canceled Sesstion', stat: sesstion.canceled, previousStat: '28.62%', change: '4.05%', changeType: false },
+    { name: 'Upcoming session (Approved)', stat: sesstion.approved, previousStat: '70,946', change: '12%', changeType: true },
+    { name: 'Pending Session', stat: sesstion.pending, previousStat: '56.14%', change: '2.02%', changeType: true },
+    { name: 'Canceled Session', stat: sesstion.canceled, previousStat: '28.62%', change: '4.05%', changeType: false },
   ]
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -330,14 +372,15 @@ const UserView = () => {
     <div className='student-page flex flex-col   '>
       {/* advisor info */}
       <div className='flex flex-col w-full p-4  mb-2  ' >
-        <h1 className='text-xl '>Your Academic advisor:</h1>
+        <h1 className='text-xl '>Your Academic advisor: </h1>
         <DoctorCard
-          firstName="Mustafa"
-          lastName="Ahamad"
+          firstName={doctor && doctor.firstName}
+          lastName={doctor && doctor.lastName}
           dep="Informaton System "
           email="Mustafa@gmail.com"
           phone="96685798765"
-          office="2050"
+          office={doctor && doctor.officeRoom}
+          avtar={doctor && doctor.imgProfile}
         />
       </div>
       {/* secuduling a sesstion section  */}
@@ -354,7 +397,7 @@ const UserView = () => {
             type="button"
             onClick={() => setOpen(true)}
             className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >Seudule a sesstion
+          >Seudule a session
           </button>
 
           <DialogCom open={open} onClose={() => setOpen(false)}>
@@ -366,7 +409,7 @@ const UserView = () => {
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DemoContainer components={['DatePicker']}>
                         <DatePicker
-                          label="Today's sesstions"
+                          label="Today's sessions"
                           value={value}
                           minDate={dayjs()}
 
@@ -387,7 +430,7 @@ const UserView = () => {
                   </div>
                   <div className='mt-2'>
                     <label className="text-base font-semibold text-gray-900">meduim </label>
-                    <p className="text-sm text-gray-500">How do you prefer to conduct this sesstion?</p>
+                    <p className="text-sm text-gray-500">How do you prefer to conduct this session?</p>
                     <fieldset className="mt-4">
                       <legend className="sr-only">Notification method</legend>
                       <div className="space-y-4 sm:flex sm:items-center sm:space-x-10 sm:space-y-0">
@@ -469,7 +512,7 @@ const UserView = () => {
 
       <div className='flex w-full mt-2 '>
         <div className='flex w-full flex-col  '>
-          <h3 className="text-base font-semibold leading-6 text-gray-900">Sesstions</h3>
+          <h3 className="text-base font-semibold leading-6 text-gray-900">Sessions</h3>
           <dl className="mt-5 grid grid-cols-1 divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow md:grid-cols-3 md:divide-x md:divide-y-0">
             {stats.map((item) => (
               <div key={item.name} className="px-4 py-5 sm:p-6">
@@ -482,12 +525,12 @@ const UserView = () => {
                         {sesstion.date}
                         <span className="ml-2 text-sm font-medium text-gray-500">at {sesstion.slot}</span>
 
-                        {item.changeType  &&<span className="inline-flex items-center rounded-full bg-pink-50 px-2 py-1 text-xs font-medium text-pink-700 ring-1 ring-inset ring-pink-700/10  ml-auto cursor-pointer"
+                        {item.changeType && <span className="inline-flex items-center rounded-full bg-pink-50 px-2 py-1 text-xs font-medium text-pink-700 ring-1 ring-inset ring-pink-700/10  ml-auto cursor-pointer"
 
                           onClick={() => {
                             if (sesstion.status === "approved" || sesstion.status === "pending") {
-                              changeStatus(sesstion.id, "cancelled")
-                              
+                              changeStatus(sesstion.id, "canceled")
+
                             }
                           }}
                         >

@@ -14,10 +14,8 @@ import dayjs from 'dayjs';
 import { AddDoctor, GetDoctorById, UpdateAvtar, UpdateDaySlots, UpdateDoctor, UpdateProfile } from '../API/doctor';
 import { ShowlLoader } from '../redux/loaderSlice';
 import { useDispatch } from 'react-redux';
-import Button from '../components/Button';
-import { UpateUser } from '../API/users';
+
 import Etable from '../components/Etable';
-import { updateDoc } from 'firebase/firestore';
 import { message } from 'antd';
 import { ref, getStorage, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { GetDoctorAppointments } from '../API/appointments';

@@ -8,10 +8,12 @@ import {
     EllipsisVerticalIcon
 } from '@heroicons/react/20/solid'
 import { Menu, Transition } from '@headlessui/react'
-import { add, eachDayOfInterval, endOfMonth, endOfWeek, format, getDay, isEqual, isFirstDayOfMonth, isSameDay, isSameMonth, isToday, parse, parseISO, set, startOfMonth, startOfToday, startOfWeek } from 'date-fns'
-import { GetDoctorAppointments, UpdateAppointmentsStatus } from '../API/appointments'
+import { add, eachDayOfInterval, endOfMonth, endOfWeek, format, getDay, isAfter, isBefore, isEqual, isFirstDayOfMonth, isSameDay, isSameMonth, isToday, isValid, parse, parseISO, set, startOfMonth, startOfToday, startOfWeek } from 'date-fns'
+import { GetDoctorAppointments, UpdateAppointmentsIsBefore, UpdateAppointmentsStatus } from '../API/appointments'
 import DialogCom from './DialogCom'
 import { FcTimeline } from "react-icons/fc";
+import dayjs from 'dayjs'
+import moment from 'moment'
 
 
 
@@ -82,7 +84,17 @@ export default function Etable() {
         console.log(user);
 
         const response = await GetDoctorAppointments(user.id)
-        console.log(response);
+        console.log(response.data);
+        let m = dayjs(`${response.data[0].date} ${response.data[0].slot} `).isBefore(new Date())
+        // here
+
+
+        console.log(m);
+
+
+
+
+
         if (response.success) {
             setAppointments(response.data)
         }
@@ -178,6 +190,35 @@ export default function Etable() {
     useEffect(() => {
         GetDocAppointments()
     }, [status])
+    useEffect(() => {
+        let checkAginstToday = `${dayjs().format('YYYY-MM-DD hh:mm A ')}`
+        
+        console.log(appointments);
+        appointments.forEach(appointment => {
+            console.log(appointment);
+            let start = `${moment(appointment.date).format('YYYY-MM-DD')} ${appointment.slot} `
+            console.log(start,checkAginstToday);
+            console.log(moment(start).isValid());
+    
+            
+            let result = moment(start).isBefore(new Date())
+            console.log(result);
+            if(result){
+                try {
+                    const response = UpdateAppointmentsIsBefore(appointment.id)
+
+                    if (response) {
+                        console.log("ok");
+                        
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+           
+        });
+
+    })
 
     return (
         <div className="lg:flex lg:h-full lg:flex-col">
