@@ -12,7 +12,7 @@ import Button from '../components/Button'
 
 
 const Login = () => {
-  const navigate = useNavigate()
+    const navigate = useNavigate()
   const dispatch = useDispatch()
   const {loading} = useSelector(state => state.loader)
    const [form, setForm] = useState({
@@ -59,8 +59,8 @@ const Login = () => {
    
     }, )
     
-  return (
-    <div className='flex h-lvh justify-center items-center'>
+    return (
+        <div className='flex h-lvh justify-center items-center'>
       <form 
          className='flex flex-col  max-md:w-5/6  bg-slate-100 p-10 rounded-xl justify-around font-montserrat  text-md  '
          onSubmit={handleSubmit} >

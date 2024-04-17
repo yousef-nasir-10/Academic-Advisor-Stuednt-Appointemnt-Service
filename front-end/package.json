@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@azure/msal-browser": "^3.13.0",
+    "@azure/msal-react": "^2.0.15",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
     "@headlessui/react": "^1.7.18",

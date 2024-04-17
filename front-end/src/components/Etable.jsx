@@ -81,16 +81,29 @@ export default function Etable() {
 
     const GetDocAppointments = async () => {
         // code here
-        const user = JSON.parse(localStorage.getItem("user"))
-        console.log(user);
-
-        const response = await GetDoctorAppointments(user.id)
-        console.log(response.data);
-        let m = dayjs(`${response.data[0].date} ${response.data[0].slot} `).isBefore(new Date())
-        // here
-
-
-        console.log(m);
+        try {
+            
+            const user = JSON.parse(localStorage.getItem("user"))
+            console.log(user);
+    
+            const response = await GetDoctorAppointments(user.id)
+            console.log(response.data);
+            let m = dayjs(`${response.data[0].date} ${response.data[0].slot} `).isBefore(new Date())
+            // here
+            console.log(m);
+            response.data.forEach(element => {
+                if (element.status === "pending" && dayjs(`${element.date} ${element.slot} `).isBefore(new Date())) {
+                    const res = UpdateAppointmentsStatus(element.id, "canceled")
+                    console.log(res);
+                    console.log('canceled because doctor did not respond to this appointment on time');
+    
+    
+    
+                }
+            });
+        } catch (error) {
+            
+        }
 
 
 
@@ -107,9 +120,7 @@ export default function Etable() {
     // console.log(daysEvents.find(event => isSameDay(format(selectedDay, 'yyyy-MM-dd'), format(event.day, 'yyyy-MM-dd'))));
     let todayEvents = daysEvents.find(event => isSameDay(format(selectedDay, 'yyyy-MM-dd'), format(event.day, 'yyyy-MM-dd'))) && daysEvents.find(event => isSameDay(format(selectedDay, 'yyyy-MM-dd'), format(event.day, 'yyyy-MM-dd'))).events
     // console.log(todayEvents);
-    console.log(appointments);
-    console.log(daysEvents);
-    console.log(todayEvents);
+
 
     const statuses = {
         approved: 'text-green-600 ',
@@ -138,7 +149,7 @@ export default function Etable() {
 
 
 
-    function buttonType(status, id) {
+    function buttonType(status, id, date, slot) {
         switch (status) {
             case "pending":
                 // code block
@@ -168,21 +179,109 @@ export default function Etable() {
                 )
                 break;
             case "approved":
-                return (
-                    <div>
+                console.log(date);
+                if (status === "approved" && dayjs(`${date} ${slot} `).isBefore(new Date())) {
+                    // const res = UpdateAppointmentsStatus(element.id, "canceled")
+                    // console.log(res);
+                    console.log('Wating for completing the form');
+                    const notificationMethods = [
+                        { id: 'email', title: 'good' },
+                        { id: 'sms', title: 'bad' },
+                        { id: 'push', title: 'perefer not to answer ' },
+                    ]
+                    return (
+                        <div className=' bg-slate-50 p-4'>
+                                <label className="text-base font-semibold text-gray-900 font-montserrat">Metting form</label>
+                            <div>
+                                <p className="text-sm text-gray-500">How the metting has gone?</p>
+                                <fieldset className="mt-2">
+                                    <legend className="sr-only">Notification method</legend>
+                                    <div className="space-y-4 sm:flex sm:items-center sm:space-x-10 sm:space-y-0">
+                                        {notificationMethods.map((notificationMethod) => (
+                                            <div key={notificationMethod.id} className="flex items-center">
+                                                <input
+                                                    id={notificationMethod.id}
+                                                    name="notification-method"
+                                                    type="radio"
+                                                    // defaultChecked={notificationMethod.id === 'email'}
+                                                    className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                                />
+                                                <label htmlFor={notificationMethod.id} className="ml-3 block text-sm font-medium leading-6 text-gray-900">
+                                                    {notificationMethod.title}
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-500">How the metting has gone?</p>
+                                <fieldset className="mt-2">
+                                    <legend className="sr-only">Notification method</legend>
+                                    <div className="space-y-4 sm:flex sm:items-center sm:space-x-10 sm:space-y-0">
+                                        {notificationMethods.map((notificationMethod) => (
+                                            <div key={notificationMethod.id} className="flex items-center">
+                                                <input
+                                                    id={notificationMethod.id}
+                                                    name="notification-method1"
+                                                    type="radio"
+                                                    // defaultChecked={notificationMethod.id === 'email'}
+                                                    className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                                />
+                                                <label htmlFor={notificationMethod.id} className="ml-3 block text-sm font-medium leading-6 text-gray-900">
+                                                    {notificationMethod.title}
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-500">How the metting has gone?</p>
+                                <fieldset className="mt-2">
+                                    <legend className="sr-only">Notification method</legend>
+                                    <div className="space-y-4 sm:flex sm:items-center sm:space-x-10 sm:space-y-0">
+                                        {notificationMethods.map((notificationMethod) => (
+                                            <div key={notificationMethod.id} className="flex items-center">
+                                                <input
+                                                    id={notificationMethod.id}
+                                                    name="notification-method2"
+                                                    type="radio"
+                                                    // defaultChecked={notificationMethod.id === 'email'}
+                                                    className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                                />
+                                                <label htmlFor={notificationMethod.id} className="ml-3 block text-sm font-medium leading-6 text-gray-900">
+                                                    {notificationMethod.title}
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
 
-                        <button
-                            onClick={() => {
-                                changeStatus(id, "canceled")
-                            }}
-                            type="button"
-                            className="inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 w-[80px] justify-center "
-                        >
+                    )
 
-                            Cancel
-                        </button>
-                    </div>
-                )
+
+
+                } else {
+                    return (
+                        <div>
+
+                            <button
+                                onClick={() => {
+                                    changeStatus(id, "canceled")
+                                }}
+                                type="button"
+                                className="inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 w-[80px] justify-center "
+                            >
+
+                                Cancel
+                            </button>
+                        </div>
+                    )
+
+                }
                 break;
             default:
             // code block
@@ -191,35 +290,6 @@ export default function Etable() {
     useEffect(() => {
         GetDocAppointments()
     }, [status])
-    useEffect(() => {
-        let checkAginstToday = `${dayjs().format('YYYY-MM-DD hh:mm A ')}`
-        
-        console.log(appointments);
-        appointments.forEach(appointment => {
-            console.log(appointment);
-            let start = `${moment(appointment.date).format('YYYY-MM-DD')} ${appointment.slot} `
-            console.log(start,checkAginstToday);
-            console.log(moment(start).isValid());
-    
-            
-            let result = moment(start).isBefore(new Date())
-            console.log(result);
-            if(result){
-                try {
-                    const response = UpdateAppointmentsIsBefore(appointment.id)
-
-                    if (response) {
-                        console.log("ok");
-                        
-                    }
-                } catch (error) {
-                    console.log(error);
-                }
-            }
-           
-        });
-
-    })
 
     return (
         <div className="lg:flex lg:h-full lg:flex-col">
@@ -266,10 +336,10 @@ export default function Etable() {
                             <span className="sr-only">Next month</span>
                             <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
                         </button>
-                        
+
                     </div>
 
-                    
+
                     {/* menus */}
                     <div className="hidden md:ml-4 md:flex md:items-center">
                         <Menu as="div" className="relative">
@@ -375,6 +445,12 @@ export default function Etable() {
                                 <circle cx={3} cy={3} r={3} />
                             </svg>
                             Approved
+                        </span>
+                        <span className="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium text-blue-600  ml-2">
+                            <svg className="h-1.5 w-1.5 fill-blue-600" viewBox="0 0 6 6" aria-hidden="true">
+                                <circle cx={3} cy={3} r={3} />
+                            </svg>
+                            Attended
                         </span>
                     </div>
                     <Menu as="div" className="relative ml-6 md:hidden">
@@ -595,7 +671,7 @@ export default function Etable() {
                                                     </time>
                                                 </a>
 
-                                                { selectedEvent === event ?
+                                                {selectedEvent === event ?
                                                     <DialogCom open={open} subText={event.slot} onClose={() => setOpen(false)} icon={<FcTimeline className="h-6 w-6 text-green-600" aria-hidden="true" />}>
                                                         <ul role="list" className="divide-y divide-gray-100 ">
 
@@ -641,7 +717,7 @@ export default function Etable() {
                                                                 </div>
                                                                 <div className="flex flex-none items-center gap-x-4 mb-2">
 
-                                                                    {buttonType(event.status, event.id)}
+                                                                    {buttonType(event.status, event.id, event.date, event.slot)}
 
                                                                 </div>
                                                             </li>

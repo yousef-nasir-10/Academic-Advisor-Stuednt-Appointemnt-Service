@@ -554,28 +554,23 @@ function AdvisorView() {
     const GetDocAppointments = async () => {
         // code here
         const user = JSON.parse(localStorage.getItem("user"))
-        console.log(user);
+
 
         const response = await GetDoctorAppointments(user.id)
-        console.log(response.data);
-        let m = dayjs(`${response.data[0].date} ${response.data[0].slot} `).isBefore(new Date())
-        console.log(m);
+
         if (response.success) {
             setAppointments(response.data)
         }
 
     }
 
-    useEffect(() => {
-        GetDocAppointments()
-    })
 
 
 
 
 
 
-    console.log(url);
+
 
 
 

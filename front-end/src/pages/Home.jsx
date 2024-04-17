@@ -9,7 +9,7 @@ const Home = () => {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")))
   return (
     <div className='student-page flex flex-col   '>
-      {user.role === "user" ?
+      {user && user.role === "user" ?
         <UserView>
         </UserView>
         :

@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -10,11 +11,18 @@ import Admin from "./pages/Admin";
 import BookAppointments from "./pages/BookAppointments";
 
 
+import { useState } from "react";
+import { useMsal, useMsalAuthentication } from '@azure/msal-react';
+import { InteractionType } from '@azure/msal-browser';
+
+
 
 
 
 function App() {
 
+
+  useMsalAuthentication(InteractionType.Redirect);
   // const {loading} = useSelector(state => state.loader)
   return (
     <div >
