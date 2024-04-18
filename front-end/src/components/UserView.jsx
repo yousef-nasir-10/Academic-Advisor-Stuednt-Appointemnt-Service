@@ -635,14 +635,22 @@ const UserView = () => {
                         <span className="ml-2 text-sm font-medium text-gray-500"> {sesstion.via}</span>
 
                       </div>
+<<<<<<< HEAD
                       {sesstion.cancellation && sesstion.cancellation.reason && <div className="flex items-baseline text-sm font-semibold text-black/80 flex-wrap bg-red-50 rounded-sm p-2">
+=======
+                      {sesstion.cancellation.reason && <div className="flex items-baseline text-sm font-semibold text-black/80 flex-wrap">
+>>>>>>> f11aaa315868df98cc06150729a41212baa8c121
 
                       cancellation reason:
                         <span className="ml-2 mr-2 text-sm font-medium text-gray-500"> {sesstion.cancellation.reason}</span>
                         canceled by:
                         <span className="ml-2 mr-2 text-sm font-medium text-gray-500"> {sesstion.cancellation.canceld_by === JSON.parse(localStorage.getItem("user")).id? "You" : "Academic Advisor"}</span>
                         cancellation time:
+<<<<<<< HEAD
                         <span className="ml-2 mr-2 text-sm font-medium text-gray-500"> { sesstion.cancellation.canceled_at}</span>
+=======
+                        <span className="ml-2 mr-2 text-sm font-medium text-gray-500"> {sesstion.cancellation.canceled_at}</span>
+>>>>>>> f11aaa315868df98cc06150729a41212baa8c121
 
                       </div>}
 

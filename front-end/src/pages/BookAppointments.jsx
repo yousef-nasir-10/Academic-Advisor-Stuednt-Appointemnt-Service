@@ -146,7 +146,12 @@ const BookAppointments = () => {
                 userName: JSON.parse(localStorage.getItem("user")).username,
                 bookedOn: moment().format("DD-MM-YYYY HH:mm "),
                 reason: reason,
-                status: "pending"
+                status: "pending",
+                cancellation: {
+                    canceld_by: null,
+                    reason: null,
+                    canceled_at: null
+                }
             }
             const response = await BookAppointment(payload)
             if (message.success) {
