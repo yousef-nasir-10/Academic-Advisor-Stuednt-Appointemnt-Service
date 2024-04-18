@@ -549,16 +549,16 @@ const UserView = () => {
       {/* second row */}
 
 
-      <div className='flex w-full mt-2  '>
-        <div className='flex w-full flex-col   '>
+      <div className='flex w-full mt-2 '>
+        <div className='flex w-full flex-col  '>
           <h3 className="text-base font-semibold leading-6 text-gray-900">Sessions</h3>
-          <dl className="mt-5 grid grid-cols-1 divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow md:grid-cols-3 md:divide-x md:divide-y-0 ">
+          <dl className="mt-5 grid grid-cols-1 divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow md:grid-cols-3 md:divide-x md:divide-y-0">
             {stats.map((item) => (
               <div key={item.name} className="px-4 py-5 sm:p-6">
                 <dt className="text-base font-normal text-gray-900">{item.name}</dt>
                 <dd className="mt-1 flex flex-col items-baseline justify-between md:block lg:flex">
                   {item.stat.map((sesstion, index) => (
-                    <div className='mt-2 p-2 w-full border-b-2'>
+                    <div className='mt-2 w-full'>
                       <div className="flex items-baseline text-md font-semibold text-indigo-600">
 
                         {sesstion.date}
@@ -629,28 +629,20 @@ const UserView = () => {
 
                         </DialogCom> : ""}
                       </div>
-                      <div className="flex items-baseline text-md font-semibold text-black/80 ">
+                      <div className="flex items-baseline text-md font-semibold text-black/80">
 
                         Way of conduction:
                         <span className="ml-2 text-sm font-medium text-gray-500"> {sesstion.via}</span>
 
                       </div>
-<<<<<<< HEAD
-                      {sesstion.cancellation && sesstion.cancellation.reason && <div className="flex items-baseline text-sm font-semibold text-black/80 flex-wrap bg-red-50 rounded-sm p-2">
-=======
                       {sesstion.cancellation.reason && <div className="flex items-baseline text-sm font-semibold text-black/80 flex-wrap">
->>>>>>> f11aaa315868df98cc06150729a41212baa8c121
 
                       cancellation reason:
                         <span className="ml-2 mr-2 text-sm font-medium text-gray-500"> {sesstion.cancellation.reason}</span>
                         canceled by:
                         <span className="ml-2 mr-2 text-sm font-medium text-gray-500"> {sesstion.cancellation.canceld_by === JSON.parse(localStorage.getItem("user")).id? "You" : "Academic Advisor"}</span>
                         cancellation time:
-<<<<<<< HEAD
-                        <span className="ml-2 mr-2 text-sm font-medium text-gray-500"> { sesstion.cancellation.canceled_at}</span>
-=======
                         <span className="ml-2 mr-2 text-sm font-medium text-gray-500"> {sesstion.cancellation.canceled_at}</span>
->>>>>>> f11aaa315868df98cc06150729a41212baa8c121
 
                       </div>}
 
