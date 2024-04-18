@@ -17,27 +17,44 @@ import { isAfter, isBefore, isSameDay } from 'date-fns'
 const UserView = () => {
 
   const [open, setOpen] = useState(false)
+  const [openCancel, setOpenCancel] = useState(false)
   const [doctor, setDoctor] = useState(null)
   const [date, setDate] = useState(null)
   const [selectedSloat, setSelectedSloat] = useState("")
   const [bookedSloats, setBookedSloats] = useState([])
   const [isSubbmit, setIsSubbmit] = useState(false)
   const [status, setStatus] = useState("")
+  const [sessionID, setSesstionID] = useState(null)
   const [sesstion, setSesstion] = useState({
     pending: [],
     approved: [],
     canceled: []
   })
 
+
+
   const [formData, SetFormData] = useState({
     reason: "",
-    via: ""
+    via: "",
   })
+  const [cancelForm, setCancelForm] = useState({
+    canceld_by: JSON.parse(localStorage.getItem("user")).id,
+    reason: null,
+    canceled_at: dayjs(new Date()).format('ddd, MMM D, YYYY h:mm A')
+  })
+
   const [value, setValue] = useState({
     startDate: null,
     endDate: null
   });
 
+  const cancellationReasons = [
+    { id: 'time', title: 'Time is no longer perfect for me' },
+    { id: 'tech', title: 'I have a technical issue' },
+    { id: 'else', title: 'Else' },
+  ]
+
+  console.log(cancelForm);
 
 
   useEffect(() => {
@@ -107,6 +124,22 @@ const UserView = () => {
     })
     console.log(formData);
   }
+
+  
+  function handleChangeReason(event) {
+
+    const { name, value, type, checked } = event.target
+    setCancelForm(prevStat => {
+      return {
+        ...prevStat,
+        [name]: type === "checkbox" ? checked : value,
+
+      }
+
+    })
+    console.log(cancelForm);
+  }
+  
   const getData = async () => {
     try {
       const user = JSON.parse(localStorage.getItem("user"))
@@ -140,6 +173,7 @@ const UserView = () => {
     }
   }
 
+
   const getSloatData = () => {
     const day = moment(date).format("dddd")
     console.log(day);
@@ -164,7 +198,7 @@ const UserView = () => {
         } else {
           if (day == day1.day) {
             console.log("here");
-           
+
 
 
           }
@@ -218,20 +252,20 @@ const UserView = () => {
       let newDate = dayjs(date).format('YYYY-MM-DD hh:mm A')
 
       while (startTime < endTime) {
-        
+
         let start = `${dayjs(startTime).format('YYYY-MM-DD hh:mm A')} `
-        console.log(start,checkAginstToday, newDate);
+        console.log(start, checkAginstToday, newDate);
 
         const result = isAfter(newDate, start)
         let result1 = isBefore(checkAginstToday, start)
         console.log(result);
 
-        
+
         if (result) {
           slots.push(startTime.format("hh:mm A "))
-        }else{
+        } else {
           console.log((isSameDay(newDate, start)));
-          if((isSameDay(newDate, start))){
+          if ((isSameDay(newDate, start))) {
             if (result1) {
               slots.push(startTime.format("hh:mm A "))
             }
@@ -258,7 +292,7 @@ const UserView = () => {
 
     return (
       <>
-        {slots.length> 0? slots.map((slot, index) => {
+        {slots.length > 0 ? slots.map((slot, index) => {
           const isBooked = bookedSloats?.find(
             (bookedSloat) => bookedSloat.slot === slot && bookedSloat.status !== 'canceled'
           )
@@ -285,9 +319,9 @@ const UserView = () => {
 
           )
         }) :
-        
-        <p className='w-full text-red-500'>There's no sesstion.</p>
-        
+
+          <p className='w-full text-red-500'>There's no sesstion.</p>
+
         }
 
 
@@ -324,7 +358,12 @@ const UserView = () => {
         reason: formData.reason,
         via: formData.via,
         status: "pending",
-        isBefore: false
+        isBefore: false,
+        cancellation: {
+          canceld_by: null,
+          reason: null,
+          canceled_at: null
+        }
       }
       const response = await BookAppointment(payload)
       if (message.success) {
@@ -338,11 +377,11 @@ const UserView = () => {
     }
   }
 
-  const changeStatus = async (id, status) => {
+  const changeStatus = async (id, status, cancellation) => {
 
     setStatus(status.status)
     try {
-      const response = await UpdateAppointmentsStatus(id, status)
+      const response = await UpdateAppointmentsStatus(id, status, cancellation)
       if (response.success) {
         message.success(response.message)
 
@@ -510,16 +549,16 @@ const UserView = () => {
       {/* second row */}
 
 
-      <div className='flex w-full mt-2 '>
-        <div className='flex w-full flex-col  '>
+      <div className='flex w-full mt-2  '>
+        <div className='flex w-full flex-col   '>
           <h3 className="text-base font-semibold leading-6 text-gray-900">Sessions</h3>
-          <dl className="mt-5 grid grid-cols-1 divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow md:grid-cols-3 md:divide-x md:divide-y-0">
+          <dl className="mt-5 grid grid-cols-1 divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow md:grid-cols-3 md:divide-x md:divide-y-0 ">
             {stats.map((item) => (
               <div key={item.name} className="px-4 py-5 sm:p-6">
                 <dt className="text-base font-normal text-gray-900">{item.name}</dt>
                 <dd className="mt-1 flex flex-col items-baseline justify-between md:block lg:flex">
                   {item.stat.map((sesstion, index) => (
-                    <div className='mt-2 w-full'>
+                    <div className='mt-2 p-2 w-full border-b-2'>
                       <div className="flex items-baseline text-md font-semibold text-indigo-600">
 
                         {sesstion.date}
@@ -529,20 +568,83 @@ const UserView = () => {
 
                           onClick={() => {
                             if (sesstion.status === "approved" || sesstion.status === "pending") {
-                              changeStatus(sesstion.id, "canceled")
+                              // here code
+                              // changeStatus(sesstion.id, "canceled")
+                              console.log("here");
+                              setOpenCancel(true)
+                              setSesstionID(sesstion.id)
 
                             }
                           }}
                         >
                           cancel
                         </span>}
+                        { sesstion.id === sessionID? <DialogCom open={openCancel} onClose={() => setOpenCancel(false)}>
+                          <div>
+                            <label className="text-base font-semibold text-gray-900"></label>
+                            <p className="text-sm text-gray-500">Why would you cancel this session?</p>
+                            <fieldset className="mt-4">
+                              <legend className="sr-only">Notification method</legend>
+                              <div className="flex flex-col ">
+                                {cancellationReasons.map((cancelReason) => (
+                                  <div key={cancelReason.id} className="flex items-center">
+                                    <input
+                                      id={cancelReason.id}
+                                      name="reason"
+                                      value={cancelReason.title}
+
+                                      onChange={handleChangeReason}
+                                      
+
+                                      type="radio"
+                                      defaultChecked={cancelReason.id === 'email'}
+                                      className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                    />
+                                    <label htmlFor={cancelReason.id} className="ml-3 block text-sm font-medium leading-6 text-gray-900">
+                                      {cancelReason.title}
+                                    </label>
+                                  </div>
+                                ))}
+                              </div>
+                            </fieldset>
+                          </div>
+                          <button
+                            type="button"
+                            className="rounded bg-red-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mt-4"
+
+                            onClick={() => {
+                              if (cancelForm.reason) {
+                                changeStatus(sesstion.id, "canceled", {
+                                  reason: cancelForm.reason,
+                                  canceled_at: dayjs(new Date).format("ddd, MMM D, YYYY h:mm A"),
+                                  canceld_by: JSON.parse(localStorage.getItem("user")).id
+
+                                })
+                                
+                              }
+                            }}
+                          >
+                            Cancel Now!
+                          </button>
+
+                        </DialogCom> : ""}
                       </div>
-                      <div className="flex items-baseline text-md font-semibold text-black/80">
+                      <div className="flex items-baseline text-md font-semibold text-black/80 ">
 
                         Way of conduction:
                         <span className="ml-2 text-sm font-medium text-gray-500"> {sesstion.via}</span>
 
                       </div>
+                      {sesstion.cancellation && sesstion.cancellation.reason && <div className="flex items-baseline text-sm font-semibold text-black/80 flex-wrap bg-red-50 rounded-sm p-2">
+
+                      cancellation reason:
+                        <span className="ml-2 mr-2 text-sm font-medium text-gray-500"> {sesstion.cancellation.reason}</span>
+                        canceled by:
+                        <span className="ml-2 mr-2 text-sm font-medium text-gray-500"> {sesstion.cancellation.canceld_by === JSON.parse(localStorage.getItem("user")).id? "You" : "Academic Advisor"}</span>
+                        cancellation time:
+                        <span className="ml-2 mr-2 text-sm font-medium text-gray-500"> { sesstion.cancellation.canceled_at}</span>
+
+                      </div>}
 
 
                     </div>

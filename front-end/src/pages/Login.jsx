@@ -53,7 +53,7 @@ const Login = () => {
       const isSignedIn = JSON.parse(localStorage.getItem("user"))
 
       if(isSignedIn){
-        navigate("/")
+        // navigate("/")
       }
 
    

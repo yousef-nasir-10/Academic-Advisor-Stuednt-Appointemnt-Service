@@ -48,6 +48,8 @@ export default function Etable() {
     const [status, setStatus] = useState("")
     const [selectedEvent, setSelectedEvent] = useState(null)
     const [open, setOpen] = useState(false)
+    const [openCancel, setOpenCancel] = useState(null)
+
 
     // const [hasMoreThan2events, setHasMoreThan2events ] = useState(false)
     let hasMoreThan2events = false
@@ -82,11 +84,12 @@ export default function Etable() {
     const GetDocAppointments = async () => {
         // code here
         try {
-            
+
             const user = JSON.parse(localStorage.getItem("user"))
             console.log(user);
-    
+
             const response = await GetDoctorAppointments(user.id)
+            setAppointments(response.data)
             console.log(response.data);
             let m = dayjs(`${response.data[0].date} ${response.data[0].slot} `).isBefore(new Date())
             // here
@@ -96,22 +99,17 @@ export default function Etable() {
                     const res = UpdateAppointmentsStatus(element.id, "canceled")
                     console.log(res);
                     console.log('canceled because doctor did not respond to this appointment on time');
-    
-    
-    
+
                 }
             });
         } catch (error) {
-            
+
         }
 
 
 
 
 
-        if (response.success) {
-            setAppointments(response.data)
-        }
 
     }
 
@@ -123,9 +121,9 @@ export default function Etable() {
 
 
     const statuses = {
-        approved: 'text-green-600 ',
-        pending: 'text-yellow-600 ',
-        canceled: 'text-red-600 ',
+        approved: 'bg-green-600 ',
+        pending: 'bg-yellow-600 ',
+        canceled: 'bg-red-600 ',
     }
     function classNames(...classes) {
         return classes.filter(Boolean).join(' ')
@@ -167,14 +165,18 @@ export default function Etable() {
                         </button>
                         <button
                             onClick={() => {
-                                changeStatus(id, "canceled")
+                                // here
+                                // changeStatus(id, "canceled")
+                                setOpenCancel(id)
                             }}
                             type="button"
                             className="inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 w-[80px] justify-center "
                         >
+                        
 
                             Cancel
                         </button>
+                        
                     </div>
                 )
                 break;
@@ -191,7 +193,7 @@ export default function Etable() {
                     ]
                     return (
                         <div className=' bg-slate-50 p-4'>
-                                <label className="text-base font-semibold text-gray-900 font-montserrat">Metting form</label>
+                            <label className="text-base font-semibold text-gray-900 font-montserrat">Metting form</label>
                             <div>
                                 <p className="text-sm text-gray-500">How the metting has gone?</p>
                                 <fieldset className="mt-2">
@@ -270,7 +272,9 @@ export default function Etable() {
 
                             <button
                                 onClick={() => {
-                                    changeStatus(id, "canceled")
+                                    // changeStatus(id, "canceled")
+                                    // setOpenCancel(!openCancel)
+                                   
                                 }}
                                 type="button"
                                 className="inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 w-[80px] justify-center "
@@ -278,6 +282,8 @@ export default function Etable() {
 
                                 Cancel
                             </button>
+
+                            
                         </div>
                     )
 
@@ -690,15 +696,17 @@ export default function Etable() {
                                                             <li key={event.id} className="flex items-center justify-between gap-x-6 py-5  flex-col-reverse">
                                                                 <div className="min-w-0 w-full">
 
-                                                                    <div className="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500 w-full">
+                                                                    <div className="mt-1  flex items-center gap-x-2 text-xs leading-5 text-gray-500 w-full">
                                                                         <p
                                                                             className={classNames(
                                                                                 statuses[event.status],
-                                                                                'rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-bold uppercase '
+                                                                                'rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-bold uppercase w-full text-white py-1 '
                                                                             )}
                                                                         >
                                                                             {event.status}
                                                                         </p>
+                                                                    </div>
+                                                                    <div className="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500 w-full">
                                                                         <p className="whitespace-nowrap">
                                                                             Due on <time dateTime={event.date}><span className='font-bold text-black'>{event.date}</span></time>
                                                                         </p>
@@ -706,18 +714,32 @@ export default function Etable() {
                                                                             <circle cx={1} cy={1} r={1} />
                                                                         </svg>
                                                                         <p className="truncate">Way of conduction: <span className='font-bold text-black'>{event.via}</span></p>
-                                                                    </div>
-                                                                    <div className="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500 w-full">
                                                                         <p className="truncate">Student: <span className='font-bold text-black'>{event.userName}</span></p>
 
                                                                     </div>
-                                                                    <div className="flex items-start gap-x-3 mt-4 w-full ">
+                                                                    {event.cancellation && event.cancellation.reason ? <div className="mt-1 flex bg-red-50 p-2 rounded-sm  gap-x-2 text-xs leading-5 text-gray-500 w-full flex-col ">
+                                                                        <div className='flex gap-2'>
+                                                                            <p className="whitespace-nowrap">
+                                                                                Canceled by: <span className='font-bold text-black'>{event.cancellation.canceld_by === JSON.parse(localStorage.getItem("user")).id ? "You" : "Student"}</span>
+                                                                            </p>
+                                                                            <p className="truncate ml-auto">Cancellation time: <span className='font-bold text-black'>{event.cancellation.canceled_at}</span></p>
+                                                                        </div>
+                                                                        <svg viewBox="0 0 2 2" className="h-0.5 w-0.5 fill-current">
+                                                                            <circle cx={1} cy={1} r={1} />
+                                                                        </svg>
+                                                                        <p className="truncate">Cancellation reason: <span className='font-bold text-black'>{event.cancellation.reason}</span></p>
+
+
+                                                                    </div> : ""}
+                                                                    <div className="flex items-start gap-x-3 mt-4 w-full flex-col ">
+                                                                        <h1 className='text-sm font-montserrat'>Session message:</h1>
                                                                         <p className="text-sm font-semibold leading-6 text-gray-900 text-justify  w-full p-4 bg-slate-50  rounded-md">{event.reason}</p>
                                                                     </div>
                                                                 </div>
-                                                                <div className="flex flex-none items-center gap-x-4 mb-2">
+                                                                <div className="flex flex-none items-center gap-x-4 mb-2 flex-col">
 
                                                                     {buttonType(event.status, event.id, event.date, event.slot)}
+                                                                    {openCancel === event.id? "m" : null}
 
                                                                 </div>
                                                             </li>
