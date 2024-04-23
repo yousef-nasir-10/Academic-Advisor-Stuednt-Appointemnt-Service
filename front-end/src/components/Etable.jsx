@@ -15,6 +15,9 @@ import { FcTimeline } from "react-icons/fc";
 import dayjs from 'dayjs'
 import moment from 'moment'
 import ExportToExcel from './ExportToExcel'
+import { Tab } from '@headlessui/react'
+import { AtSymbolIcon, CodeBracketIcon, LinkIcon } from '@heroicons/react/20/solid'
+import { message } from 'antd'
 
 
 
@@ -49,6 +52,9 @@ export default function Etable() {
     const [selectedEvent, setSelectedEvent] = useState(null)
     const [open, setOpen] = useState(false)
     const [openCancel, setOpenCancel] = useState(null)
+    const [openApprove, setOpenApprove] = useState(null)
+    const [cancelReason, setCancelReason] = useState("")
+    const [linkMetting, setLinkMetting] = useState("")
 
 
     // const [hasMoreThan2events, setHasMoreThan2events ] = useState(false)
@@ -96,9 +102,15 @@ export default function Etable() {
             console.log(m);
             response.data.forEach(element => {
                 if (element.status === "pending" && dayjs(`${element.date} ${element.slot} `).isBefore(new Date())) {
-                    const res = UpdateAppointmentsStatus(element.id, "canceled")
+                    // const res = UpdateAppointmentsStatus(element.id, "canceled")
+                    changeStatus(element.id, "canceled", {
+                        reason: "Canceled automatically because your academic advisor did not respond to this appointment.",
+                        canceled_at: dayjs(new Date).format("ddd, MMM D, YYYY h:mm A"),
+                        canceld_by: "System"
+
+                    })
                     console.log(res);
-                    console.log('canceled because doctor did not respond to this appointment on time');
+                    
 
                 }
             });
@@ -129,11 +141,11 @@ export default function Etable() {
         return classes.filter(Boolean).join(' ')
     }
 
-    const changeStatus = async (id, status) => {
+    const changeStatus = async (id, status, cancellation, link) => {
 
         setStatus(status.status)
         try {
-            const response = await UpdateAppointmentsStatus(id, status)
+            const response = await UpdateAppointmentsStatus(id, status, cancellation, link)
             if (response.success) {
                 message.success(response.message)
 
@@ -147,7 +159,7 @@ export default function Etable() {
 
 
 
-    function buttonType(status, id, date, slot) {
+    function buttonType(status, id, date, slot, via) {
         switch (status) {
             case "pending":
                 // code block
@@ -155,28 +167,46 @@ export default function Etable() {
                     <div className='flex justify-center gap-2 items-center'>
                         <button
                             onClick={() => {
-                                changeStatus(id, "approved")
+                                // changeStatus(id, "approved")
+                                if (via === "online") {
+                                    setOpenApprove(id)
+                                    if (linkMetting) {
+
+                                        changeStatus(id, "approved", null, linkMetting)
+                                    }
+                                } else {
+                                    changeStatus(id, "approved")
+                                }
                             }}
                             type="button"
                             className="inline-flex items-center gap-x-1.5 rounded-md bg-green-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 w-[80px] justify-center "
                         >
 
-                            Approve
+                            {via === "online" && linkMetting ? "Send" : "Approve"}
                         </button>
                         <button
                             onClick={() => {
                                 // here
                                 // changeStatus(id, "canceled")
                                 setOpenCancel(id)
+                                if (cancelReason) {
+                                    changeStatus(id, "canceled", {
+                                        reason: cancelReason,
+                                        canceled_at: dayjs(new Date).format("ddd, MMM D, YYYY h:mm A"),
+                                        canceld_by: JSON.parse(localStorage.getItem("user")).id
+
+                                    })
+                                }
+
                             }}
                             type="button"
                             className="inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 w-[80px] justify-center "
                         >
-                        
 
-                            Cancel
+
+                            {cancelReason ? "Confirm" : "Cancel"}
                         </button>
-                        
+
                     </div>
                 )
                 break;
@@ -272,18 +302,25 @@ export default function Etable() {
 
                             <button
                                 onClick={() => {
-                                    // changeStatus(id, "canceled")
-                                    // setOpenCancel(!openCancel)
-                                   
+                                    setOpenCancel(id)
+                                    if (cancelReason) {
+                                        changeStatus(id, "canceled", {
+                                            reason: cancelReason,
+                                            canceled_at: dayjs(new Date).format("ddd, MMM D, YYYY h:mm A"),
+                                            canceld_by: JSON.parse(localStorage.getItem("user")).id
+
+                                        })
+                                    }
+
                                 }}
                                 type="button"
                                 className="inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 w-[80px] justify-center "
                             >
 
-                                Cancel
+                                {cancelReason ? "Confirm" : "Cancel"}
                             </button>
 
-                            
+
                         </div>
                     )
 
@@ -694,18 +731,9 @@ export default function Etable() {
                                                                 </div>
                                                             </li> */}
                                                             <li key={event.id} className="flex items-center justify-between gap-x-6 py-5  flex-col-reverse">
-                                                                <div className="min-w-0 w-full">
 
-                                                                    <div className="mt-1  flex items-center gap-x-2 text-xs leading-5 text-gray-500 w-full">
-                                                                        <p
-                                                                            className={classNames(
-                                                                                statuses[event.status],
-                                                                                'rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-bold uppercase w-full text-white py-1 '
-                                                                            )}
-                                                                        >
-                                                                            {event.status}
-                                                                        </p>
-                                                                    </div>
+
+                                                                <div className="min-w-0 w-full">
                                                                     <div className="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500 w-full">
                                                                         <p className="whitespace-nowrap">
                                                                             Due on <time dateTime={event.date}><span className='font-bold text-black'>{event.date}</span></time>
@@ -717,29 +745,97 @@ export default function Etable() {
                                                                         <p className="truncate">Student: <span className='font-bold text-black'>{event.userName}</span></p>
 
                                                                     </div>
-                                                                    {event.cancellation && event.cancellation.reason ? <div className="mt-1 flex bg-red-50 p-2 rounded-sm  gap-x-2 text-xs leading-5 text-gray-500 w-full flex-col ">
+
+                                                                    <div className="mt-1  flex items-center gap-x-2 text-xs leading-5 text-gray-500 w-full">
+                                                                        <p
+                                                                            className={classNames(
+                                                                                statuses[event.status],
+                                                                                'rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-bold uppercase w-full text-white py-1 '
+                                                                            )}
+                                                                        >
+                                                                            {event.status}
+                                                                        </p>
+                                                                    </div>
+
+
+
+                                                                    {event.cancellation && event.cancellation.reason ? <div className="mt-1 flex bg-red-50 p-2 rounded-sm  gap-x-2 text-xs leading-5 text-gray-500 w-full flex-col flex-wrap  ">
                                                                         <div className='flex gap-2'>
                                                                             <p className="whitespace-nowrap">
-                                                                                Canceled by: <span className='font-bold text-black'>{event.cancellation.canceld_by === JSON.parse(localStorage.getItem("user")).id ? "You" : "Student"}</span>
+                                                                                Canceled by: <span className='font-bold text-black'>{event.cancellation.canceld_by === JSON.parse(localStorage.getItem("user")).id ? "You" : event.cancellation.canceld_by === "system"? "Auto cancellation": "student"}</span>
                                                                             </p>
                                                                             <p className="truncate ml-auto">Cancellation time: <span className='font-bold text-black'>{event.cancellation.canceled_at}</span></p>
                                                                         </div>
                                                                         <svg viewBox="0 0 2 2" className="h-0.5 w-0.5 fill-current">
                                                                             <circle cx={1} cy={1} r={1} />
                                                                         </svg>
-                                                                        <p className="truncate">Cancellation reason: <span className='font-bold text-black'>{event.cancellation.reason}</span></p>
 
 
                                                                     </div> : ""}
+                                                                    {event.cancellation.reason && <p className="truncate bg-red-50 p-2 text-xs  text-gray-500">Cancellation reason: <span className='font-bold text-black text-xs text-wrap font-montserrat'>{event.cancellation.reason}</span></p>}
                                                                     <div className="flex items-start gap-x-3 mt-4 w-full flex-col ">
                                                                         <h1 className='text-sm font-montserrat'>Session message:</h1>
                                                                         <p className="text-sm font-semibold leading-6 text-gray-900 text-justify  w-full p-4 bg-slate-50  rounded-md">{event.reason}</p>
                                                                     </div>
                                                                 </div>
+
+                                                                {openCancel === event.id ?
+                                                                    <div className='w-full'>
+
+                                                                        <label htmlFor="comment" className="sr-only">
+                                                                            Comment
+                                                                        </label>
+                                                                        <div className='gap-2'>
+                                                                            <textarea
+                                                                                rows={2}
+                                                                                name="comment"
+                                                                                id="comment"
+                                                                                className={`first-letter:block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 mb-2 p-2 ${event.status === 'canceled' ? 'hidden' : ""}`}
+                                                                                placeholder="Kindly explain why this session would be canceled and then click confirm. "
+                                                                                defaultValue={''}
+                                                                                value={cancelReason}
+                                                                                onChange={(e) => {
+                                                                                    setCancelReason(e.target.value)
+                                                                                }}
+                                                                            />
+
+                                                                        </div>
+
+
+                                                                    </div>
+
+                                                                    : null}
+
+                                                                {openApprove === event.id ?
+                                                                    <div className='w-full'>
+
+                                                                        <label htmlFor="comment" className="sr-only">
+                                                                            Comment
+                                                                        </label>
+                                                                        <div className='gap-2'>
+                                                                            <textarea
+                                                                                rows={2}
+                                                                                name="comment"
+                                                                                id="comment"
+                                                                                className={`first-letter:block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 mb-2 p-2 ${event.status === 'canceled' || event.status === 'approved' ? 'hidden' : ""}`}
+                                                                                placeholder="Paste the metting link (teams) "
+                                                                                defaultValue={''}
+                                                                                value={linkMetting}
+                                                                                onChange={(e) => {
+                                                                                    setLinkMetting(e.target.value)
+                                                                                }}
+                                                                            />
+
+                                                                        </div>
+
+
+                                                                    </div>
+
+                                                                    : null}
+
                                                                 <div className="flex flex-none items-center gap-x-4 mb-2 flex-col">
 
-                                                                    {buttonType(event.status, event.id, event.date, event.slot)}
-                                                                    {openCancel === event.id? "m" : null}
+                                                                    {buttonType(event.status, event.id, event.date, event.slot, event.via)}
 
                                                                 </div>
                                                             </li>

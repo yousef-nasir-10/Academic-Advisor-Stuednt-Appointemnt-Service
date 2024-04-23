@@ -100,13 +100,20 @@ export const GetUserAppointments = async (userId) => {
     }
 }
 
-export const UpdateAppointmentsStatus = async (id, status, cancellation) => {
+export const UpdateAppointmentsStatus = async (id, status, cancellation, link) => {
     try {
 
         if (status === 'canceled') {
             await updateDoc(doc(firestoreDatabase, "appointments", id),{
                 status: status,
                 cancellation
+            })
+        }
+
+        if (link) {
+            await updateDoc(doc(firestoreDatabase, "appointments", id),{
+                status: status,
+                link
             })
         }
         

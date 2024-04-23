@@ -125,7 +125,7 @@ const UserView = () => {
     console.log(formData);
   }
 
-  
+
   function handleChangeReason(event) {
 
     const { name, value, type, checked } = event.target
@@ -139,7 +139,7 @@ const UserView = () => {
     })
     console.log(cancelForm);
   }
-  
+
   const getData = async () => {
     try {
       const user = JSON.parse(localStorage.getItem("user"))
@@ -359,6 +359,7 @@ const UserView = () => {
         via: formData.via,
         status: "pending",
         isBefore: false,
+        link: "",
         cancellation: {
           canceld_by: null,
           reason: null,
@@ -558,28 +559,33 @@ const UserView = () => {
                 <dt className="text-base font-normal text-gray-900">{item.name}</dt>
                 <dd className="mt-1 flex flex-col items-baseline justify-between md:block lg:flex">
                   {item.stat.map((sesstion, index) => (
-                    <div className='mt-2 w-full'>
+                    <div className='mt-2 w-full border-b-2 m-h-[120px]'>
                       <div className="flex items-baseline text-md font-semibold text-indigo-600">
 
                         {sesstion.date}
                         <span className="ml-2 text-sm font-medium text-gray-500">at {sesstion.slot}</span>
 
-                        {item.changeType && <span className="inline-flex items-center rounded-full bg-pink-50 px-2 py-1 text-xs font-medium text-pink-700 ring-1 ring-inset ring-pink-700/10  ml-auto cursor-pointer"
+                        <div className='flex ml-auto gap-2 items-center'>
+                          {item.changeType && <span className="inline-flex items-center rounded-full bg-pink-50 px-2 py-1 text-xs font-medium text-pink-700 ring-1 ring-inset ring-pink-700/10   cursor-pointer"
 
-                          onClick={() => {
-                            if (sesstion.status === "approved" || sesstion.status === "pending") {
-                              // here code
-                              // changeStatus(sesstion.id, "canceled")
-                              console.log("here");
-                              setOpenCancel(true)
-                              setSesstionID(sesstion.id)
+                            onClick={() => {
+                              if (sesstion.status === "approved" || sesstion.status === "pending") {
+                                // here code
+                                // changeStatus(sesstion.id, "canceled")
+                                console.log("here");
+                                setOpenCancel(true)
+                                setSesstionID(sesstion.id)
 
-                            }
-                          }}
-                        >
-                          cancel
-                        </span>}
-                        { sesstion.id === sessionID? <DialogCom open={openCancel} onClose={() => setOpenCancel(false)}>
+                              }
+                            }}
+                          >
+                            cancel
+                          </span>}
+
+                          {sesstion.link && <a href={sesstion.link} className='text-sm text-green-600 underline'>Your online session link</a>}
+
+                        </div>
+                        {sesstion.id === sessionID ? <DialogCom open={openCancel} onClose={() => setOpenCancel(false)}>
                           <div>
                             <label className="text-base font-semibold text-gray-900"></label>
                             <p className="text-sm text-gray-500">Why would you cancel this session?</p>
@@ -594,7 +600,7 @@ const UserView = () => {
                                       value={cancelReason.title}
 
                                       onChange={handleChangeReason}
-                                      
+
 
                                       type="radio"
                                       defaultChecked={cancelReason.id === 'email'}
@@ -620,7 +626,7 @@ const UserView = () => {
                                   canceld_by: JSON.parse(localStorage.getItem("user")).id
 
                                 })
-                                
+
                               }
                             }}
                           >
@@ -629,20 +635,29 @@ const UserView = () => {
 
                         </DialogCom> : ""}
                       </div>
-                      <div className="flex items-baseline text-md font-semibold text-black/80">
+                      <div className="flex items-baseline text-md font-semibold text-black/80 ">
 
                         Way of conduction:
                         <span className="ml-2 text-sm font-medium text-gray-500"> {sesstion.via}</span>
 
                       </div>
-                      {sesstion.cancellation.reason && <div className="flex items-baseline text-sm font-semibold text-black/80 flex-wrap">
+                      {sesstion.cancellation.reason && <div className="flex items-baseline text-sm font-semibold text-black/80 flex-wrap bg-red-50 p-2 flex-col ">
+                        <div>
+                          cancellation reason:
+                          <span className="ml-2 mr-2 text-sm font-medium text-gray-500"> {sesstion.cancellation.reason}</span>
 
-                      cancellation reason:
-                        <span className="ml-2 mr-2 text-sm font-medium text-gray-500"> {sesstion.cancellation.reason}</span>
-                        canceled by:
-                        <span className="ml-2 mr-2 text-sm font-medium text-gray-500"> {sesstion.cancellation.canceld_by === JSON.parse(localStorage.getItem("user")).id? "You" : "Academic Advisor"}</span>
-                        cancellation time:
-                        <span className="ml-2 mr-2 text-sm font-medium text-gray-500"> {sesstion.cancellation.canceled_at}</span>
+                        </div>
+                        <div>
+                          cancellation time:
+                          <span className="ml-2 mr-2 text-sm font-medium text-gray-500"> {sesstion.cancellation.canceled_at}</span>
+
+                        </div>
+                        <div>
+                          canceled by:
+                          <span className="ml-2 mr-2 text-sm font-medium text-gray-500"> {sesstion.cancellation.canceld_by === JSON.parse(localStorage.getItem("user")).id ? "You" : sesstion.cancellation.canceld_by === "system" ? "Auto cancellation" : "Academic Advisor"}</span>
+
+                        </div>
+
 
                       </div>}
 
